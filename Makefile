@@ -36,4 +36,4 @@ clean:
 
 run:
 	@echo "🚀 Running the application..."
-	cargo run
+	cargo run --release
