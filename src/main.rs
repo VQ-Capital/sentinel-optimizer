@@ -35,12 +35,7 @@ struct Genome {
 #[tokio::main]
 async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
-
-    info!(
-        "🧬 Service: {} | Version: {} | VQ-CAPITAL SINGULARITY",
-        env!("CARGO_PKG_NAME"),
-        env!("CARGO_PKG_VERSION")
-    );
+    info!("🧬 VQ-CAPITAL SINGULARITY ENGINE BAŞLATILIYOR...");
 
     let args = Args::parse();
     let http_client = reqwest::Client::new();
@@ -101,10 +96,19 @@ async fn main() -> Result<()> {
 
             // F. Zaman Makinesi (Backtest) Çalıştır
             info!("   ⏳ Backtest Enjeksiyonu Başladı...");
+            // 🔥 CERRAHİ: NATS Portu 14222 olarak Host makineye uygun ayarlandı
             execute_command(
                 "../sentinel-backtest",
                 "cargo",
-                &["run", "--release", "--", "--csv-file", &args.csv_data],
+                &[
+                    "run",
+                    "--release",
+                    "--",
+                    "--csv-file",
+                    &args.csv_data,
+                    "--nats-url",
+                    "nats://localhost:14222",
+                ],
             )?;
             sleep(Duration::from_secs(2)).await; // İşlemlerin QuestDB'ye yazılması için buffer
 
@@ -197,11 +201,10 @@ fn inject_weights(file_path: &str, weights: &[f32]) -> Result<()> {
 }
 
 fn execute_command(dir: &str, cmd: &str, args: &[&str]) -> Result<()> {
+    // 🔥 CERRAHİ: Artık Stdio::null() (Gizleme) yok. HFT akışını ekranda canlı göreceksin.
     let status = Command::new(cmd)
         .args(args)
         .current_dir(dir)
-        .stdout(std::process::Stdio::null()) // Terminal kirliliğini önle
-        .stderr(std::process::Stdio::null())
         .status()
         .context(format!("Komut çalıştırılamadı: {} {:?}", cmd, args))?;
 
