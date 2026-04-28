@@ -1,0 +1,16 @@
+# ========== DOSYA: sentinel-optimizer/Cargo.toml ==========
+[package]
+name = "sentinel-optimizer"
+version = "1.0.0"
+edition = "2021"
+description = "VQ-Capital Singularity Engine (Genetic Algorithm Orchestrator)"
+
+[dependencies]
+tokio = { version = "1.36", features = ["full"] }
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+regex = "1.10"
+rand = "0.8"
+reqwest = "0.11"
+clap = { version = "4.4", features = ["derive"] }
