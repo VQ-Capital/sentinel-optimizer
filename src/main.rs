@@ -19,8 +19,21 @@ struct Args {
     #[arg(short, long, default_value = "../sentinel-inference/src/weights.rs")]
     inference_file: String,
 
-    #[arg(short, long, default_value = "../sentinel-data/datasets/BTCUSDT_1D.csv")]
+    #[arg(
+        short,
+        long,
+        default_value = "../sentinel-data/datasets/BTCUSDT_1D.csv"
+    )]
     csv_file_path: String,
+
+    #[arg(short, long, default_value = "BTCUSDT")]
+    symbol: String,
+
+    #[arg(short, long, default_value = "nats://localhost:14222")]
+    nats_url: String,
+
+    #[arg(short, long, default_value = "5000")]
+    max_mps: usize,
 
     #[arg(short, long, default_value = "5")]
     generations: usize,
@@ -112,12 +125,14 @@ async fn main() -> Result<()> {
                     "run",
                     "--release",
                     "--",
-                    "--csv-file",
+                    "--csv-file-path",
                     &args.csv_file_path,
+                    "--symbol",
+                    &args.symbol,
                     "--nats-url",
-                    "nats://localhost:14222",
+                    &args.nats_url,
                     "--max-mps",
-                    "5000",
+                    &args.max_mps.to_string(),
                 ],
             )?;
 
