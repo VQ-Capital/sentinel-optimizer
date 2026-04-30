@@ -10,12 +10,13 @@ use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::process::Command;
 use tokio::time::{sleep, Duration};
-use tracing::{info, warn}; // 🔥 CERRAHİ: Chrono importu eklendi
+use tracing::{info, warn};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about = "VQ-Capital Singularity Optimizer V7", long_about = None)]
 struct Args {
-    #[arg(short, long, default_value = "../sentinel-inference/src/main.rs")]
+    // 🔥 CERRAHİ: Artık main.rs'yi bozmayacak, izole weight dosyasını hedef alacak.
+    #[arg(short, long, default_value = "../sentinel-inference/src/weights.rs")]
     inference_file: String,
 
     #[arg(short, long, default_value = "../sentinel-data/datasets/test_data.csv")]
@@ -41,20 +42,18 @@ struct Genome {
 #[tokio::main]
 async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
-    info!("🧬 VQ-CAPITAL SINGULARITY ENGINE V7 (Deep-Audit Edition) BAŞLATILIYOR...");
+    info!("🧬 VQ-CAPITAL SINGULARITY ENGINE V7 (Modular Edition) BAŞLATILIYOR...");
 
     let args = Args::parse();
     let http_client = reqwest::Client::new();
 
-    // 1. Analiz Log Dosyasını Hazırla
     let log_path = "optimization_audit_log.csv";
     let mut log_file = OpenOptions::new()
         .create(true)
         .append(true)
         .open(log_path)
-        .context("Log dosyası oluşturulamadı")?;
+        .context("Log hatası")?;
 
-    // Başlık satırı (Eğer dosya yeni oluşturulduysa)
     if log_file.metadata()?.len() == 0 {
         writeln!(
             log_file,
@@ -64,13 +63,8 @@ async fn main() -> Result<()> {
 
     let mut hall_of_fame: Vec<Genome> = Vec::new();
 
-    // Başlangıç Katsayıları (Gen-0)
     let mut best_genome = Genome {
-        weights: vec![
-            0.0, 0.5, -0.5, 0.0, 0.4, -0.4, 0.0, 0.3, -0.3, 0.0, -0.1, 0.1, 0.0, -0.2, 0.2, 0.1,
-            -0.1, -0.1, 0.0, 0.2, -0.2, 0.0, 0.1, -0.1, 0.0, -0.2, 0.2, 0.0, 0.1, -0.1, 0.0, 0.0,
-            0.0, 0.0, 0.0, 0.0,
-        ],
+        weights: vec![0.0; 36],
         fitness: -9999.0,
         pnl: 0.0,
         sharpe: 0.0,
@@ -133,20 +127,17 @@ async fn main() -> Result<()> {
             execute_command("../sentinel-tearsheet", "cargo", &["run", "--release"])?;
 
             let (pnl, sharpe) = parse_tearsheet("../sentinel-tearsheet/TEARSHEET.md")?;
-
             let fitness = if pnl > 0.0 {
                 pnl * (1.0 + sharpe)
             } else {
                 pnl - 2.0
             };
-
             let status = if fitness > generation_best.fitness {
                 "🌟 IMPROVED"
             } else {
                 "❌ REJECTED"
             };
 
-            // 📊 DENETİM KAYDI: CSV'ye Yaz
             writeln!(
                 log_file,
                 "{},{},{},{:.4},{:.2},{:.4},{}",
@@ -158,7 +149,6 @@ async fn main() -> Result<()> {
                 fitness,
                 status
             )?;
-
             info!(
                 "   📊 Sonuç -> PnL: ${:.4} | Sharpe: {:.2} | Status: {}",
                 pnl, sharpe, status
@@ -176,11 +166,8 @@ async fn main() -> Result<()> {
                 info!("   🌟 YENİ REKOR BULUNDU!");
             }
         }
-
         best_genome = generation_best;
         hall_of_fame.push(best_genome.clone());
-
-        // Hall of Fame Kaydet (Pretty Print)
         fs::write(
             "hall_of_fame.json",
             serde_json::to_string_pretty(&hall_of_fame)?,
@@ -195,7 +182,6 @@ async fn main() -> Result<()> {
         "docker",
         &["restart", "sentinel-sentinel-inference-1"],
     )?;
-
     Ok(())
 }
 
@@ -231,11 +217,10 @@ fn inject_weights(file_path: &str, weights: &[f32]) -> Result<()> {
         "Last Close Price",
     ];
 
-    let mut new_vec =
-        String::from("let weights_data = vec![\n            //  HOLD,    BUY,    SELL\n");
+    let mut new_vec = String::from("let weights_data = vec![\n        //  HOLD,    BUY,    SELL\n");
     for i in 0..12 {
         new_vec.push_str(&format!(
-            "             {:.4},  {:.4},  {:.4}, // F{}: {}\n",
+            "         {:.4},  {:.4},  {:.4}, // F{}: {}\n",
             weights[i * 3],
             weights[i * 3 + 1],
             weights[i * 3 + 2],
@@ -243,7 +228,7 @@ fn inject_weights(file_path: &str, weights: &[f32]) -> Result<()> {
             labels[i]
         ));
     }
-    new_vec.push_str("        ];");
+    new_vec.push_str("    ];");
 
     let new_content = re.replace(&content, new_vec.as_str());
     fs::write(file_path, new_content.to_string())?;
@@ -251,12 +236,7 @@ fn inject_weights(file_path: &str, weights: &[f32]) -> Result<()> {
 }
 
 fn execute_command(dir: &str, cmd: &str, args: &[&str]) -> Result<()> {
-    let status = Command::new(cmd)
-        .args(args)
-        .current_dir(dir)
-        .status()
-        .context(format!("Komut hatası: {} {:?}", cmd, args))?;
-
+    let status = Command::new(cmd).args(args).current_dir(dir).status()?;
     if !status.success() {
         warn!("⚠️ Alt komut başarısız: {} {:?}", cmd, args);
     }
@@ -268,6 +248,7 @@ async fn truncate_db(client: &reqwest::Client) -> Result<()> {
         "TRUNCATE TABLE paper_trades;",
         "TRUNCATE TABLE performance;",
         "TRUNCATE TABLE market_states;",
+        "TRUNCATE TABLE execution_rejections;",
     ];
     for query in queries {
         let _ = client
@@ -276,13 +257,11 @@ async fn truncate_db(client: &reqwest::Client) -> Result<()> {
             .send()
             .await?;
     }
-
     let _ = client
         .post("http://localhost:16333/collections/market_states_12d/points/delete")
         .json(&json!({ "filter": { "must": [] } }))
         .send()
         .await?;
-
     Ok(())
 }
 
@@ -296,12 +275,10 @@ fn parse_tearsheet(file_path: &str) -> Result<(f64, f64)> {
         .and_then(|c| c.get(1))
         .and_then(|m| m.as_str().parse::<f64>().ok())
         .unwrap_or(0.0);
-
     let sharpe = sharpe_re
         .captures(&content)
         .and_then(|c| c.get(1))
         .and_then(|m| m.as_str().parse::<f64>().ok())
         .unwrap_or(0.0);
-
     Ok((pnl, sharpe))
 }
