@@ -19,8 +19,8 @@ struct Args {
     #[arg(short, long, default_value = "../sentinel-inference/src/weights.rs")]
     inference_file: String,
 
-    #[arg(short, long, default_value = "../sentinel-data/datasets/test_data.csv")]
-    csv_data: String,
+    #[arg(short, long, default_value = "../sentinel-data/datasets/BTCUSDT_1D.csv")]
+    csv_file_path: String,
 
     #[arg(short, long, default_value = "5")]
     generations: usize,
@@ -113,7 +113,7 @@ async fn main() -> Result<()> {
                     "--release",
                     "--",
                     "--csv-file",
-                    &args.csv_data,
+                    &args.csv_file_path,
                     "--nats-url",
                     "nats://localhost:14222",
                     "--max-mps",
