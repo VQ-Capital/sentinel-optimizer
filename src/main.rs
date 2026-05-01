@@ -13,9 +13,8 @@ use tokio::time::{sleep, Duration};
 use tracing::{info, warn};
 
 #[derive(Parser, Debug)]
-#[command(author, version, about = "VQ-Capital Singularity Optimizer V7", long_about = None)]
+#[command(author, version, about = "VQ-Capital Singularity Optimizer V8", long_about = None)]
 struct Args {
-    // 🔥 CERRAHİ: Artık main.rs'yi bozmayacak, izole weight dosyasını hedef alacak.
     #[arg(short, long, default_value = "../sentinel-inference/src/weights.rs")]
     inference_file: String,
 
@@ -44,7 +43,7 @@ struct Args {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct Genome {
-    weights: Vec<f32>,
+    weights: Vec<f32>, // 39 Gen: 36 Ağırlık + 3 Bias
     fitness: f64,
     pnl: f64,
     sharpe: f64,
@@ -55,7 +54,7 @@ struct Genome {
 #[tokio::main]
 async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
-    info!("🧬 VQ-CAPITAL SINGULARITY ENGINE V7 (Modular Edition) BAŞLATILIYOR...");
+    info!("🧬 VQ-CAPITAL SINGULARITY ENGINE V8.1 (Self-Calibrating Edition) BAŞLATILIYOR...");
 
     let args = Args::parse();
     let http_client = reqwest::Client::new();
@@ -76,13 +75,32 @@ async fn main() -> Result<()> {
 
     let mut hall_of_fame: Vec<Genome> = Vec::new();
 
-    let mut best_genome = Genome {
-        weights: vec![0.0; 36],
-        fitness: -9999.0,
-        pnl: 0.0,
-        sharpe: 0.0,
-        generation: 0,
-        population_id: 0,
+    let mut best_genome = if let Ok(data) = fs::read_to_string("hall_of_fame.json") {
+        if let Ok(mut history) = serde_json::from_str::<Vec<Genome>>(&data) {
+            if let Some(last_best) = history.pop() {
+                info!("🧠 Geri Yükleme Başarılı! Önceki DNA'dan devam ediliyor.");
+                let mut migrated_weights = last_best.weights.clone();
+                if migrated_weights.len() == 36 {
+                    migrated_weights.extend_from_slice(&[0.0, 0.0, 0.0]);
+                }
+                hall_of_fame = history;
+
+                Genome {
+                    weights: migrated_weights,
+                    fitness: last_best.fitness,
+                    pnl: last_best.pnl,
+                    sharpe: last_best.sharpe,
+                    generation: 0,
+                    population_id: 0,
+                }
+            } else {
+                default_genome()
+            }
+        } else {
+            default_genome()
+        }
+    } else {
+        default_genome()
     };
 
     for gen in 1..=args.generations {
@@ -98,7 +116,7 @@ async fn main() -> Result<()> {
             let current_weights = if gen == 1 && pop == 1 {
                 best_genome.weights.clone()
             } else {
-                mutate(&best_genome.weights, 0.35)
+                mutate(&best_genome.weights, 0.40)
             };
 
             inject_weights(&args.inference_file, &current_weights)?;
@@ -142,12 +160,25 @@ async fn main() -> Result<()> {
             execute_command("../sentinel-tearsheet", "cargo", &["run", "--release"])?;
 
             let (pnl, sharpe) = parse_tearsheet("../sentinel-tearsheet/TEARSHEET.md")?;
-            let fitness = if pnl > 0.0 {
+
+            let fitness = if pnl == 0.0 && sharpe == 0.0 {
+                -500.0 // Tembellik cezası
+            } else if pnl > 0.0 {
                 pnl * (1.0 + sharpe)
             } else {
                 pnl - 2.0
             };
-            let status = if fitness > generation_best.fitness {
+
+            // 🔥 CERRAHİ: DATASET SHIFT (KAYMA) KALİBRASYONU
+            let mut is_baseline = false;
+            if gen == 1 && pop == 1 {
+                generation_best.fitness = -999999.0; // Eski datasetin sahte skorunu ez!
+                is_baseline = true;
+            }
+
+            let status = if is_baseline {
+                "📍 BASELINE"
+            } else if fitness > generation_best.fitness {
                 "🌟 IMPROVED"
             } else {
                 "❌ REJECTED"
@@ -164,12 +195,13 @@ async fn main() -> Result<()> {
                 fitness,
                 status
             )?;
+
             info!(
-                "   📊 Sonuç -> PnL: ${:.4} | Sharpe: {:.2} | Status: {}",
-                pnl, sharpe, status
+                "   📊 Sonuç -> PnL: ${:.4} | Sharpe: {:.2} | Fitness: {:.2} | {}",
+                pnl, sharpe, fitness, status
             );
 
-            if fitness > generation_best.fitness {
+            if fitness > generation_best.fitness || is_baseline {
                 generation_best = Genome {
                     weights: current_weights,
                     fitness,
@@ -178,7 +210,14 @@ async fn main() -> Result<()> {
                     generation: gen,
                     population_id: pop,
                 };
-                info!("   🌟 YENİ REKOR BULUNDU!");
+                if is_baseline {
+                    info!(
+                        "   📍 YENİ DATASET İÇİN BAZ ALINAN REFERANS SKOR: {:.4}",
+                        fitness
+                    );
+                } else {
+                    info!("   🌟 YENİ REKOR BULUNDU!");
+                }
             }
         }
         best_genome = generation_best;
@@ -200,12 +239,32 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
+fn default_genome() -> Genome {
+    let mut rng = rand::thread_rng();
+    let mut dna: Vec<f32> = (0..36).map(|_| rng.gen_range(-0.1..0.1)).collect();
+    dna.extend_from_slice(&[0.0, 0.0, 0.0]);
+    Genome {
+        weights: dna,
+        fitness: -9999.0,
+        pnl: 0.0,
+        sharpe: 0.0,
+        generation: 0,
+        population_id: 0,
+    }
+}
+
 fn mutate(base: &[f32], mutation_rate: f32) -> Vec<f32> {
     let mut rng = rand::thread_rng();
     base.iter()
-        .map(|&w| {
-            if rng.gen_bool(0.45) {
-                w + rng.gen_range(-mutation_rate..mutation_rate)
+        .enumerate()
+        .map(|(i, &w)| {
+            let current_rate = if i >= 36 {
+                mutation_rate / 2.0
+            } else {
+                mutation_rate
+            };
+            if rng.gen_bool(0.50) {
+                w + rng.gen_range(-current_rate..current_rate)
             } else {
                 w
             }
@@ -213,10 +272,14 @@ fn mutate(base: &[f32], mutation_rate: f32) -> Vec<f32> {
         .collect()
 }
 
-fn inject_weights(file_path: &str, weights: &[f32]) -> Result<()> {
+fn inject_weights(file_path: &str, dna: &[f32]) -> Result<()> {
     let content = fs::read_to_string(file_path).context("Inference dosyası bulunamadı")?;
-    let re = Regex::new(r"let weights_data = vec!\[[\s\S]*?\];")?;
 
+    let re_weights =
+        Regex::new(r"pub fn get_dna_weights\(\) -> Vec<f32> \{\s*vec\!\[[\s\S]*?\]\s*\}")?;
+    let mut new_weights = String::from(
+        "pub fn get_dna_weights() -> Vec<f32> {\n    vec![\n        //  HOLD,    BUY,    SELL\n",
+    );
     let labels = [
         "Price Velocity (Z-Score)",
         "Orderbook Imbalance",
@@ -231,22 +294,33 @@ fn inject_weights(file_path: &str, weights: &[f32]) -> Result<()> {
         "Time Sine (Intraday)",
         "Last Close Price",
     ];
-
-    let mut new_vec = String::from("let weights_data = vec![\n        //  HOLD,    BUY,    SELL\n");
     for i in 0..12 {
-        new_vec.push_str(&format!(
+        new_weights.push_str(&format!(
             "         {:.4},  {:.4},  {:.4}, // F{}: {}\n",
-            weights[i * 3],
-            weights[i * 3 + 1],
-            weights[i * 3 + 2],
+            dna[i * 3],
+            dna[i * 3 + 1],
+            dna[i * 3 + 2],
             i,
             labels[i]
         ));
     }
-    new_vec.push_str("    ];");
+    new_weights.push_str("    ]\n}");
+    let content_w = re_weights.replace(&content, new_weights.as_str());
 
-    let new_content = re.replace(&content, new_vec.as_str());
-    fs::write(file_path, new_content.to_string())?;
+    let re_biases =
+        Regex::new(r"pub fn get_dna_biases\(\) -> Vec<f32> \{\s*vec\!\[[\s\S]*?\]\s*\}")?;
+    let mut new_biases = String::from(
+        "pub fn get_dna_biases() -> Vec<f32> {\n    vec![\n        // HOLD, BUY, SELL\n",
+    );
+    new_biases.push_str(&format!(
+        "        {:.4}, {:.4}, {:.4}, \n",
+        dna[36], dna[37], dna[38]
+    ));
+    new_biases.push_str("    ]\n}");
+
+    let final_content = re_biases.replace(&content_w, new_biases.as_str());
+
+    fs::write(file_path, final_content.to_string())?;
     Ok(())
 }
 
