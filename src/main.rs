@@ -1,373 +1,253 @@
 // ========== DOSYA: sentinel-optimizer/src/main.rs ==========
-use anyhow::{Context, Result};
-use chrono::Utc;
+use anyhow::Result;
 use clap::Parser;
 use rand::Rng;
-use regex::Regex;
+use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use std::fs::{self, OpenOptions};
 use std::io::Write;
-use std::process::Command;
-use tokio::time::{sleep, Duration};
 use tracing::{info, warn};
 
-#[derive(Parser, Debug)]
-#[command(author, version, about = "VQ-Capital Singularity Optimizer V8", long_about = None)]
-struct Args {
-    #[arg(short, long, default_value = "../sentinel-inference/src/weights.rs")]
-    inference_file: String,
+mod simulator;
+use simulator::{run_simulation, HistoricalTick};
 
+#[derive(Parser, Debug)]
+#[command(author, version, about = "VQ-Capital V14.1 Alpha Strike", long_about = None)]
+struct Args {
     #[arg(
         short,
         long,
-        default_value = "../sentinel-data/datasets/BTCUSDT_1D.csv"
+        default_value = "../sentinel-data/datasets/BTCUSDT_7D.csv"
     )]
     csv_file_path: String,
-
     #[arg(short, long, default_value = "BTCUSDT")]
     symbol: String,
-
-    #[arg(short, long, default_value = "nats://localhost:14222")]
-    nats_url: String,
-
-    #[arg(short, long, default_value = "5000")]
-    max_mps: usize,
-
-    #[arg(short, long, default_value = "5")]
+    #[arg(short, long, default_value = "200")]
     generations: usize,
-
-    #[arg(short, long, default_value = "5")]
+    #[arg(short, long, default_value = "500")]
     population: usize,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-struct Genome {
-    weights: Vec<f32>, // 39 Gen: 36 Ağırlık + 3 Bias
-    fitness: f64,
-    pnl: f64,
-    sharpe: f64,
-    generation: usize,
-    population_id: usize,
+pub struct Genome {
+    pub weights: Vec<f32>,
+    pub fitness: f64,
+    pub pnl: f64,
+    pub sharpe: f64,
+    pub max_drawdown: f64,
+    pub trades: usize,
+    pub generation: usize,
 }
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
-    info!("🧬 VQ-CAPITAL SINGULARITY ENGINE V8.1 (Self-Calibrating Edition) BAŞLATILIYOR...");
+    info!("🧬 VQ-CAPITAL V14.1 ALPHA-STRIKE ENGINE BAŞLATILIYOR...");
 
     let args = Args::parse();
-    let http_client = reqwest::Client::new();
+
+    let mut reader = csv::ReaderBuilder::new()
+        .has_headers(true)
+        .from_path(&args.csv_file_path)?;
+    let mut ticks = Vec::with_capacity(5_000_000);
+    for tick in reader.deserialize::<HistoricalTick>().flatten() {
+        ticks.push(tick);
+    }
+    info!("✅ {} adet tick RAM'de. Arena Hazır!", ticks.len());
 
     let log_path = "optimization_audit_log.csv";
     let mut log_file = OpenOptions::new()
         .create(true)
         .append(true)
-        .open(log_path)
-        .context("Log hatası")?;
+        .open(log_path)?;
 
     if log_file.metadata()?.len() == 0 {
         writeln!(
             log_file,
-            "Timestamp,Generation,Population,PnL,Sharpe,Fitness,Status"
+            "Timestamp,Gen,PnL,Sharpe,MaxDD,Trades,Fit,MutRate,TP,SL,Risk"
         )?;
     }
 
-    let mut hall_of_fame: Vec<Genome> = Vec::new();
-
-    let mut best_genome = if let Ok(data) = fs::read_to_string("hall_of_fame.json") {
-        if let Ok(mut history) = serde_json::from_str::<Vec<Genome>>(&data) {
-            if let Some(last_best) = history.pop() {
-                info!("🧠 Geri Yükleme Başarılı! Önceki DNA'dan devam ediliyor.");
-                let mut migrated_weights = last_best.weights.clone();
-                if migrated_weights.len() == 36 {
-                    migrated_weights.extend_from_slice(&[0.0, 0.0, 0.0]);
-                }
-                hall_of_fame = history;
-
-                Genome {
-                    weights: migrated_weights,
-                    fitness: last_best.fitness,
-                    pnl: last_best.pnl,
-                    sharpe: last_best.sharpe,
-                    generation: 0,
-                    population_id: 0,
-                }
-            } else {
-                default_genome()
-            }
-        } else {
-            default_genome()
-        }
-    } else {
-        default_genome()
-    };
-
-    for gen in 1..=args.generations {
-        info!("==================================================");
-        info!("🧬 JENERASYON {}/{} EVRİM DÖNGÜSÜ", gen, args.generations);
-        info!("==================================================");
-
-        let mut generation_best = best_genome.clone();
-
-        for pop in 1..=args.population {
-            info!("🔬 [G:{}-P:{}] Test Ediliyor...", gen, pop);
-
-            let current_weights = if gen == 1 && pop == 1 {
-                best_genome.weights.clone()
-            } else {
-                mutate(&best_genome.weights, 0.40)
-            };
-
-            inject_weights(&args.inference_file, &current_weights)?;
-
-            info!("   ⚙️ Sentinel-Inference Derleniyor...");
-            execute_command("../sentinel-inference", "cargo", &["build", "--release"])?;
-
-            info!("   🐳 Konteyner Yeniden Başlatılıyor...");
-            execute_command(
-                "../sentinel-infra",
-                "docker",
-                &["restart", "sentinel-sentinel-inference-1"],
-            )?;
-            sleep(Duration::from_secs(6)).await;
-
-            info!("   🧹 Tüm Hafıza Sıfırlanıyor...");
-            truncate_db(&http_client).await?;
-
-            info!("   ⏳ Backtest Enjeksiyonu Başladı...");
-            execute_command(
-                "../sentinel-backtest",
-                "cargo",
-                &[
-                    "run",
-                    "--release",
-                    "--",
-                    "--csv-file-path",
-                    &args.csv_file_path,
-                    "--symbol",
-                    &args.symbol,
-                    "--nats-url",
-                    &args.nats_url,
-                    "--max-mps",
-                    &args.max_mps.to_string(),
-                ],
-            )?;
-
-            sleep(Duration::from_secs(12)).await;
-
-            info!("   📄 Tearsheet Çıkarılıyor...");
-            execute_command("../sentinel-tearsheet", "cargo", &["run", "--release"])?;
-
-            let (pnl, sharpe) = parse_tearsheet("../sentinel-tearsheet/TEARSHEET.md")?;
-
-            let fitness = if pnl == 0.0 && sharpe == 0.0 {
-                -500.0 // Tembellik cezası
-            } else if pnl > 0.0 {
-                pnl * (1.0 + sharpe)
-            } else {
-                pnl - 2.0
-            };
-
-            // 🔥 CERRAHİ: DATASET SHIFT (KAYMA) KALİBRASYONU
-            let mut is_baseline = false;
-            if gen == 1 && pop == 1 {
-                generation_best.fitness = -999999.0; // Eski datasetin sahte skorunu ez!
-                is_baseline = true;
-            }
-
-            let status = if is_baseline {
-                "📍 BASELINE"
-            } else if fitness > generation_best.fitness {
-                "🌟 IMPROVED"
-            } else {
-                "❌ REJECTED"
-            };
-
-            writeln!(
-                log_file,
-                "{},{},{},{:.4},{:.2},{:.4},{}",
-                Utc::now().to_rfc3339(),
-                gen,
-                pop,
-                pnl,
-                sharpe,
-                fitness,
-                status
-            )?;
-
-            info!(
-                "   📊 Sonuç -> PnL: ${:.4} | Sharpe: {:.2} | Fitness: {:.2} | {}",
-                pnl, sharpe, fitness, status
-            );
-
-            if fitness > generation_best.fitness || is_baseline {
-                generation_best = Genome {
-                    weights: current_weights,
-                    fitness,
-                    pnl,
-                    sharpe,
-                    generation: gen,
-                    population_id: pop,
-                };
-                if is_baseline {
-                    info!(
-                        "   📍 YENİ DATASET İÇİN BAZ ALINAN REFERANS SKOR: {:.4}",
-                        fitness
-                    );
-                } else {
-                    info!("   🌟 YENİ REKOR BULUNDU!");
-                }
-            }
-        }
-        best_genome = generation_best;
-        hall_of_fame.push(best_genome.clone());
-        fs::write(
-            "hall_of_fame.json",
-            serde_json::to_string_pretty(&hall_of_fame)?,
-        )?;
-    }
-
-    info!("🏁 EVRİM TAMAMLANDI. En kârlı DNA Beyne enjekte edildi.");
-    inject_weights(&args.inference_file, &best_genome.weights)?;
-    execute_command("../sentinel-inference", "cargo", &["build", "--release"])?;
-    execute_command(
-        "../sentinel-infra",
-        "docker",
-        &["restart", "sentinel-sentinel-inference-1"],
-    )?;
-    Ok(())
-}
-
-fn default_genome() -> Genome {
-    let mut rng = rand::thread_rng();
-    let mut dna: Vec<f32> = (0..36).map(|_| rng.gen_range(-0.1..0.1)).collect();
-    dna.extend_from_slice(&[0.0, 0.0, 0.0]);
-    Genome {
-        weights: dna,
-        fitness: -9999.0,
+    let mut population: Vec<Genome> = (0..args.population)
+        .map(|_| create_random_genome())
+        .collect();
+    let mut best_all_time = Genome {
+        fitness: -9999999.0,
+        weights: vec![],
         pnl: 0.0,
         sharpe: 0.0,
+        max_drawdown: 0.0,
+        trades: 0,
         generation: 0,
-        population_id: 0,
-    }
-}
+    };
 
-fn mutate(base: &[f32], mutation_rate: f32) -> Vec<f32> {
-    let mut rng = rand::thread_rng();
-    base.iter()
-        .enumerate()
-        .map(|(i, &w)| {
-            let current_rate = if i >= 36 {
-                mutation_rate / 2.0
-            } else {
-                mutation_rate
-            };
-            if rng.gen_bool(0.50) {
-                w + rng.gen_range(-current_rate..current_rate)
-            } else {
-                w
+    // Hafıza yükleme (Varsa)
+    if let Ok(data) = fs::read_to_string("hall_of_fame.json") {
+        if let Ok(history) = serde_json::from_str::<Vec<Genome>>(&data) {
+            if let Some(last_best) = history.first() {
+                info!("🧠 Hafıza Geri Yüklendi. Alpha DNA sisteme aşılandı.");
+                population[0] = last_best.clone();
+                best_all_time = last_best.clone();
             }
-        })
-        .collect()
-}
-
-fn inject_weights(file_path: &str, dna: &[f32]) -> Result<()> {
-    let content = fs::read_to_string(file_path).context("Inference dosyası bulunamadı")?;
-
-    let re_weights =
-        Regex::new(r"pub fn get_dna_weights\(\) -> Vec<f32> \{\s*vec\!\[[\s\S]*?\]\s*\}")?;
-    let mut new_weights = String::from(
-        "pub fn get_dna_weights() -> Vec<f32> {\n    vec![\n        //  HOLD,    BUY,    SELL\n",
-    );
-    let labels = [
-        "Price Velocity (Z-Score)",
-        "Orderbook Imbalance",
-        "Neural Sentiment",
-        "Chain Urgency",
-        "RSI",
-        "Volatility",
-        "Taker Ratio",
-        "Intensity (Tick count)",
-        "Position in Range",
-        "Orderbook Depth",
-        "Time Sine (Intraday)",
-        "Last Close Price",
-    ];
-    for i in 0..12 {
-        new_weights.push_str(&format!(
-            "         {:.4},  {:.4},  {:.4}, // F{}: {}\n",
-            dna[i * 3],
-            dna[i * 3 + 1],
-            dna[i * 3 + 2],
-            i,
-            labels[i]
-        ));
+        }
     }
-    new_weights.push_str("    ]\n}");
-    let content_w = re_weights.replace(&content, new_weights.as_str());
 
-    let re_biases =
-        Regex::new(r"pub fn get_dna_biases\(\) -> Vec<f32> \{\s*vec\!\[[\s\S]*?\]\s*\}")?;
-    let mut new_biases = String::from(
-        "pub fn get_dna_biases() -> Vec<f32> {\n    vec![\n        // HOLD, BUY, SELL\n",
-    );
-    new_biases.push_str(&format!(
-        "        {:.4}, {:.4}, {:.4}, \n",
-        dna[36], dna[37], dna[38]
-    ));
-    new_biases.push_str("    ]\n}");
+    let mut stagnation_counter = 0;
+    let mut current_mutation_rate = 0.25f32;
 
-    let final_content = re_biases.replace(&content_w, new_biases.as_str());
+    for gen in 1..=args.generations {
+        let start_time = std::time::Instant::now();
 
-    fs::write(file_path, final_content.to_string())?;
+        population.par_iter_mut().for_each(|genome| {
+            let result = run_simulation(&genome.weights, &ticks, &args.symbol);
+            genome.pnl = result.pnl;
+            genome.sharpe = result.sharpe;
+            genome.max_drawdown = result.max_dd;
+            genome.trades = result.trades;
+            genome.fitness =
+                calculate_fitness(result.pnl, result.sharpe, result.max_dd, result.trades);
+            genome.generation = gen;
+        });
+
+        population.sort_by(|a, b| {
+            b.fitness
+                .partial_cmp(&a.fitness)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
+
+        let gen_best = &population[0];
+
+        if gen_best.fitness > best_all_time.fitness {
+            best_all_time = gen_best.clone();
+            stagnation_counter = 0;
+            current_mutation_rate = 0.25f32;
+            info!("🌟 REKOR! [Gen {}] PnL: ${:.2} | Trades: {} | Fit: {:.2} | TP: {:.3} | SL: {:.3} | Risk: {:.1}%",
+                gen, gen_best.pnl, gen_best.trades, gen_best.fitness, gen_best.weights[39], gen_best.weights[40], gen_best.weights[42] * 100.0);
+            let _ = fs::write(
+                "hall_of_fame.json",
+                serde_json::to_string_pretty(&vec![&best_all_time]).unwrap_or_default(),
+            );
+        } else {
+            stagnation_counter += 1;
+            if stagnation_counter > 5 {
+                current_mutation_rate = (current_mutation_rate + 0.05f32).min(0.85f32);
+                warn!(
+                    "⚠️ DURGUNLUK ({} nesil)! Mutasyon: {:.2}",
+                    stagnation_counter, current_mutation_rate
+                );
+            }
+            info!(
+                "🔄 Gen: {} | PnL: ${:.2} | Trades: {} | Fit: {:.2} | Süre: {:.2}s",
+                gen,
+                gen_best.pnl,
+                gen_best.trades,
+                gen_best.fitness,
+                start_time.elapsed().as_secs_f32()
+            );
+        }
+
+        writeln!(
+            log_file,
+            "{},{},{:.2},{:.2},{:.2},{},{:.2},{:.2},{:.4},{:.4},{:.2}",
+            chrono::Utc::now().to_rfc3339(),
+            gen,
+            gen_best.pnl,
+            gen_best.sharpe,
+            gen_best.max_drawdown,
+            gen_best.trades,
+            gen_best.fitness,
+            current_mutation_rate,
+            gen_best.weights[39],
+            gen_best.weights[40],
+            gen_best.weights[42]
+        )?;
+
+        population = evolve_population(&population, args.population, current_mutation_rate);
+    }
     Ok(())
 }
 
-fn execute_command(dir: &str, cmd: &str, args: &[&str]) -> Result<()> {
-    let status = Command::new(cmd).args(args).current_dir(dir).status()?;
-    if !status.success() {
-        warn!("⚠️ Alt komut başarısız: {} {:?}", cmd, args);
+fn calculate_fitness(pnl: f64, sharpe: f64, max_dd: f64, trades: usize) -> f64 {
+    if trades < 60 {
+        return -10000.0 + (trades as f64 * 100.0);
     }
-    Ok(())
+    if pnl <= 0.0 {
+        pnl * (1.0 + (max_dd / 10.0)) - 100.0 // Zarar edenlere daha sert ceza
+    } else {
+        // Alpha Strike Reward
+        pnl * sharpe.powi(2).max(0.1) * (trades as f64).log10()
+    }
 }
 
-async fn truncate_db(client: &reqwest::Client) -> Result<()> {
-    let queries = [
-        "TRUNCATE TABLE paper_trades;",
-        "TRUNCATE TABLE performance;",
-        "TRUNCATE TABLE market_states;",
-        "TRUNCATE TABLE execution_rejections;",
-    ];
-    for query in queries {
-        let _ = client
-            .get("http://localhost:19000/exec")
-            .query(&[("query", query)])
-            .send()
-            .await?;
+fn create_random_genome() -> Genome {
+    let mut rng = rand::thread_rng();
+    let mut dna: Vec<f32> = (0..39).map(|_| rng.gen_range(-1.5..1.5)).collect();
+    dna.push(rng.gen_range(0.008..0.030)); // 39: TP
+    dna.push(rng.gen_range(0.004..0.015)); // 40: SL
+    dna.push(rng.gen_range(500.0..5000.0)); // 41: Cooldown
+    dna.push(rng.gen_range(0.20..0.70)); // 42: Risk Pct (Minimum %20!)
+    Genome {
+        weights: dna,
+        fitness: -9999999.0,
+        pnl: 0.0,
+        sharpe: 0.0,
+        max_drawdown: 0.0,
+        trades: 0,
+        generation: 0,
     }
-    let _ = client
-        .post("http://localhost:16333/collections/market_states_12d/points/delete")
-        .json(&json!({ "filter": { "must": [] } }))
-        .send()
-        .await?;
-    Ok(())
 }
 
-fn parse_tearsheet(file_path: &str) -> Result<(f64, f64)> {
-    let content = fs::read_to_string(file_path).unwrap_or_default();
-    let pnl_re = Regex::new(r"Net PnL\*\* \| `\$([\-\d\.]+)`").unwrap();
-    let sharpe_re = Regex::new(r"Sharpe Ratio\*\* \| `([\-\d\.]+)`").unwrap();
+fn evolve_population(current_pop: &[Genome], total_size: usize, mut_rate: f32) -> Vec<Genome> {
+    let mut new_pop = Vec::with_capacity(total_size);
+    let mut rng = rand::thread_rng();
+    let elite_count = total_size / 10;
+    new_pop.extend_from_slice(&current_pop[0..elite_count]);
 
-    let pnl = pnl_re
-        .captures(&content)
-        .and_then(|c| c.get(1))
-        .and_then(|m| m.as_str().parse::<f64>().ok())
-        .unwrap_or(0.0);
-    let sharpe = sharpe_re
-        .captures(&content)
-        .and_then(|c| c.get(1))
-        .and_then(|m| m.as_str().parse::<f64>().ok())
-        .unwrap_or(0.0);
-    Ok((pnl, sharpe))
+    while new_pop.len() < (total_size as f64 * 0.90) as usize {
+        let p1 = &current_pop[rng.gen_range(0..elite_count)];
+        let p2 = &current_pop[rng.gen_range(0..elite_count)];
+        let mut child_dna = Vec::with_capacity(43);
+        for i in 0..43 {
+            let mut gene = if rng.gen_bool(0.5) {
+                p1.weights[i]
+            } else {
+                p2.weights[i]
+            };
+            if rng.gen_bool(mut_rate as f64) {
+                if i < 39 {
+                    gene += rng.gen_range(-0.3..0.3);
+                } else if i == 39 || i == 40 {
+                    gene += rng.gen_range(-0.002..0.002);
+                } else if i == 41 {
+                    gene += rng.gen_range(-200.0..200.0);
+                } else {
+                    gene += rng.gen_range(-0.1..0.1);
+                }
+            }
+            if i == 39 {
+                gene = gene.clamp(0.006, 0.06);
+            } else if i == 40 {
+                gene = gene.clamp(0.004, 0.04);
+            } else if i == 41 {
+                gene = gene.clamp(200.0, 10000.0);
+            } else if i == 42 {
+                gene = gene.clamp(0.15, 0.85);
+            } else {
+                gene = gene.clamp(-3.0, 3.0);
+            }
+            child_dna.push(gene);
+        }
+        new_pop.push(Genome {
+            weights: child_dna,
+            fitness: -9999999.0,
+            pnl: 0.0,
+            sharpe: 0.0,
+            max_drawdown: 0.0,
+            trades: 0,
+            generation: 0,
+        });
+    }
+    while new_pop.len() < total_size {
+        new_pop.push(create_random_genome());
+    }
+    new_pop
 }
