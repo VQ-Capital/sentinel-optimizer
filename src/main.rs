@@ -122,12 +122,10 @@ fn main() -> Result<()> {
 }
 
 fn calculate_fitness(pnl: f64, sharpe: f64, max_dd: f64, trades: usize) -> f64 {
-    // 🔥 CERRAHİ 1: KAMIKAZE İPTALİ. Batana sonsuz ceza!
+    // 1. Kamikaze ve Tembellik Cezaları
     if max_dd >= 90.0 {
         return -100_000.0 - (trades as f64);
     }
-
-    // 🔥 CERRAHİ 2: Tembellik Cezası (Min 50 işlem)
     if trades < 50 {
         return -30000.0 + (trades as f64 * 100.0);
     }
@@ -139,8 +137,13 @@ fn calculate_fitness(pnl: f64, sharpe: f64, max_dd: f64, trades: usize) -> f64 {
     };
 
     if pnl <= 0.0 {
-        pnl - (max_dd * 100.0) - overtrading_penalty
+        // 🔥 CERRAHİ: Risk İstismarı İptali
+        // Artık toplam zarara değil, "İşlem başına ne kadar az kaybettiğine" bakıyoruz.
+        // Bu sayede algoritma riski kısmak yerine, stratejiyi iyileştirmeye odaklanacak!
+        let avg_trade_pnl = pnl / trades as f64;
+        (avg_trade_pnl * 1000.0) - (max_dd * 10.0) - overtrading_penalty
     } else {
+        // Kâr bölgesinde (Alpha Strike)
         let dd_mult = if max_dd > 10.0 {
             0.1
         } else if max_dd > 5.0 {
