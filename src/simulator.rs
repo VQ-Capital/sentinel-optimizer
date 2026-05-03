@@ -37,7 +37,6 @@ pub struct SimulationResult {
 
 #[derive(Clone, Default)]
 struct Bucket {
-    #[allow(dead_code)]
     open: f64,
     close: f64,
     high: f64,
@@ -48,101 +47,93 @@ struct Bucket {
 }
 
 pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> SimulationResult {
+    // 🧬 DNA MAPPING (V14.1 Precision)
+    // 0..36: Weights (12x3)
+    // 36..39: Biases (3)
+    // 39: TP | 40: SL | 41: Cooldown | 42: Risk
     let weights = dna[0..36].to_vec();
     let biases = dna[36..39].to_vec();
 
     let model = match PureMathModel::new(weights, biases) {
         Ok(m) => m,
-        Err(_) => {
-            return SimulationResult {
-                pnl: 0.0,
-                sharpe: 0.0,
-                max_dd: 0.0,
-                trades: 0,
-            }
-        }
+        Err(_) => return dead_result(),
     };
 
-    let config = RiskConfig {
+    let risk_config = RiskConfig {
         initial_balance: 1000.0,
-        max_drawdown_usd: 950.0,
-        defensive_drawdown_usd: 800.0,
+        max_drawdown_usd: 900.0,
+        defensive_drawdown_usd: 750.0,
         cooldown_ms: dna[41] as i64,
         min_hold_time_ms: 1000,
         max_hold_time_ms: 3_600_000,
-        base_risk_pct: (dna[42] as f64).clamp(0.15, 0.90),
+        base_risk_pct: (dna[42] as f64).clamp(0.15, 0.85),
         base_leverage: 1.0,
-        take_profit_pct: (dna[39] as f64).clamp(0.008, 0.06),
-        stop_loss_pct: (dna[40] as f64).clamp(0.004, 0.03),
+        take_profit_pct: (dna[39] as f64).clamp(0.005, 0.06),
+        stop_loss_pct: (dna[40] as f64).clamp(0.004, 0.04),
     };
 
-    let mut risk_engine = RiskEngine::new(config.clone());
+    let mut risk_engine = RiskEngine::new(risk_config.clone());
     let mut z_scores = vec![OnlineZScore::new(1000); 12];
-    let mut buckets: VecDeque<Bucket> = VecDeque::with_capacity(400);
+    let mut buckets: VecDeque<Bucket> = VecDeque::with_capacity(64);
     let mut current_bucket = Bucket {
-        open: 0.0,
+        open: ticks[0].price,
         high: f64::MIN,
         low: f64::MAX,
         ..Default::default()
     };
-    let mut current_sec = 0;
 
-    let mut balance = config.initial_balance;
+    let mut current_sec = ticks[0].timestamp / 1000;
+    let mut balance = risk_config.initial_balance;
     let mut peak_equity = balance;
     let mut returns = Vec::new();
     let mut trade_count = 0;
     let mut last_signal_ms = 0;
     let mut current_prices = HashMap::new();
 
-    let mut fast_ema = ticks[0].price;
-    let mut slow_ema = fast_ema;
-
+    // ⚡ 12-DIMENSIONAL FEATURE EXTRACTION (Aligned with sentinel-inference)
     for tick in ticks {
         let sec = tick.timestamp / 1000;
         current_prices.insert(symbol.to_string(), tick.price);
 
-        fast_ema = tick.price * 0.01 + fast_ema * 0.99;
-        slow_ema = tick.price * 0.001 + slow_ema * 0.999;
-
-        if current_sec == 0 {
-            current_sec = sec;
-        }
-
         if sec > current_sec {
+            current_bucket.close = tick.price;
             buckets.push_back(current_bucket.clone());
-            if buckets.len() > 300 {
+            if buckets.len() > 60 {
                 buckets.pop_front();
             }
+
             current_sec = sec;
             current_bucket = Bucket {
                 open: tick.price,
-                close: tick.price,
                 high: tick.price,
                 low: tick.price,
                 ..Default::default()
             };
 
-            if buckets.len() >= 100 {
-                let _last_close = buckets.back().unwrap().close;
-                let mut highest = f64::MIN;
-                let mut lowest = f64::MAX;
+            if buckets.len() >= 25 {
+                // Sinyal üretim penceresi (Inference ile aynı)
+                let first_open = buckets.front().unwrap().open;
+                let last_close = buckets.back().unwrap().close;
+
                 let mut total_buy = 0.0;
                 let mut total_sell = 0.0;
                 let mut total_ticks = 0;
+                let mut highest = f64::MIN;
+                let mut lowest = f64::MAX;
                 let mut gains = 0.0;
                 let mut losses = 0.0;
-                let mut prev_c = buckets[0].close;
+                let mut prev_c = first_open;
 
                 for b in &buckets {
+                    total_buy += b.buy_vol;
+                    total_sell += b.sell_vol;
+                    total_ticks += b.ticks;
                     if b.high > highest {
                         highest = b.high;
                     }
                     if b.low < lowest {
                         lowest = b.low;
                     }
-                    total_buy += b.buy_vol;
-                    total_sell += b.sell_vol;
-                    total_ticks += b.ticks;
                     let d = b.close - prev_c;
                     if d > 0.0 {
                         gains += d;
@@ -152,45 +143,51 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
                     prev_c = b.close;
                 }
 
-                let ema_diff = (fast_ema - slow_ema) / slow_ema;
-                let price_to_slow = (tick.price - slow_ema) / slow_ema;
+                // 📐 MATH ENGINE (V5 NDARRAY COMPLIANT)
+                let velocity = (last_close - first_open) / first_open;
                 let trade_imb = if (total_buy + total_sell) > 0.0 {
                     (total_buy - total_sell) / (total_buy + total_sell)
                 } else {
                     0.0
                 };
+                let volatility = (highest - lowest) / lowest;
                 let rsi = if (gains + losses) > 0.0 {
                     100.0 - (100.0 / (1.0 + (gains / losses.max(1e-9))))
                 } else {
                     50.0
                 };
-                let volatility = if lowest > 0.0 {
-                    (highest - lowest) / lowest
-                } else {
-                    0.0
-                };
-                let intensity = total_ticks as f64 / buckets.len() as f64;
-                let hour = ((tick.timestamp / 3600000) % 24) as f64;
-                let time_sine = (hour * std::f64::consts::PI / 12.0).sin();
                 let taker_ratio = if (total_buy + total_sell) > 0.0 {
                     total_buy / (total_buy + total_sell)
                 } else {
                     0.5
                 };
+                let intensity = total_ticks as f64 / buckets.len() as f64;
+                let pos_in_range = if highest > lowest {
+                    (last_close - lowest) / (highest - lowest)
+                } else {
+                    0.5
+                };
+                let hour = ((tick.timestamp / 3600000) % 24) as f64;
+                let time_sin = (hour * std::f64::consts::PI / 12.0).sin();
 
                 let mut features = [0.0f32; 12];
-                features[0] = z_scores[0].update(ema_diff, 10000.0) as f32;
-                features[1] = z_scores[1].update(price_to_slow, 10000.0) as f32;
-                features[2] = z_scores[2].update(trade_imb, 1.0) as f32;
-                features[3] = z_scores[3].update(rsi, 1.0) as f32;
-                features[4] = z_scores[4].update(volatility, 1000.0) as f32;
-                features[5] = z_scores[5].update(intensity, 1.0) as f32;
-                features[6] = z_scores[6].update(time_sine, 1.0) as f32;
-                features[7] = z_scores[7].update(taker_ratio, 1.0) as f32;
+                features[0] = z_scores[0].update(velocity, 10000.0) as f32; // F0: Vel
+                features[1] = z_scores[1].update(trade_imb, 1.0) as f32; // F1: Imb
+                features[2] = z_scores[2].update(0.0, 1.0) as f32; // F2: Sent (Sim'de nötr)
+                features[3] = z_scores[3].update(0.0, 1.0) as f32; // F3: Urg (Sim'de nötr)
+                features[4] = z_scores[4].update(rsi, 1.0) as f32; // F4: RSI
+                features[5] = z_scores[5].update(volatility, 10000.0) as f32; // F5: Vol
+                features[6] = z_scores[6].update(taker_ratio, 1.0) as f32; // F6: Taker
+                features[7] = z_scores[7].update(intensity, 1.0) as f32; // F7: Int
+                features[8] = z_scores[8].update(pos_in_range, 1.0) as f32; // F8: PosRange
+                features[9] = z_scores[9].update(total_buy + total_sell, 1.0) as f32; // F9: Depth
+                features[10] = z_scores[10].update(time_sin, 1.0) as f32; // F10: Season
+                features[11] = z_scores[11].update(last_close, 1.0) as f32; // F11: Price
 
-                if tick.timestamp - last_signal_ms >= 5000 {
+                // 🚀 PREDICTION & RISK EXECUTION
+                if tick.timestamp - last_signal_ms >= risk_config.cooldown_ms {
                     if let Ok((sig_type, conf)) = model.predict(&features) {
-                        if sig_type != SignalType::Hold && conf > 0.45 {
+                        if sig_type != SignalType::Hold && conf > 0.40 {
                             last_signal_ms = tick.timestamp;
                             let signal = TradeSignal {
                                 symbol: symbol.to_string(),
@@ -213,10 +210,11 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
                                 } else {
                                     "SELL"
                                 };
+                                // Slippage ve Komisyon Simülasyonu
                                 let exec_price = if side == "BUY" {
-                                    tick.price * 1.0001
+                                    tick.price * 1.0002
                                 } else {
-                                    tick.price * 0.9999
+                                    tick.price * 0.9998
                                 };
                                 risk_engine.process_execution(
                                     symbol,
@@ -225,7 +223,7 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
                                     qty,
                                     tick.timestamp,
                                 );
-                                balance -= (exec_price * qty) * 0.0002;
+                                balance -= (exec_price * qty) * 0.0002; // Komisyon
                             }
                         }
                     }
@@ -233,7 +231,7 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
             }
         }
 
-        current_bucket.close = tick.price;
+        // Kova Güncelleme
         if tick.price > current_bucket.high {
             current_bucket.high = tick.price;
         }
@@ -247,12 +245,13 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
             current_bucket.buy_vol += tick.qty;
         }
 
+        // TP/SL Kontrolü
         let close_orders = risk_engine.check_tp_sl(&current_prices, tick.timestamp);
         for (sym, side, qty, price) in close_orders {
             let exec_price = if side == "BUY" {
-                price * 1.0001
+                price * 1.0002
             } else {
-                price * 0.9999
+                price * 0.9998
             };
             let realized =
                 risk_engine.process_execution(&sym, side, exec_price, qty, tick.timestamp);
@@ -266,28 +265,39 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
         }
     }
 
-    let max_dd = if peak_equity > 1000.0 {
+    let max_dd = if peak_equity > 0.0 {
         ((peak_equity - balance) / peak_equity) * 100.0
-    } else {
-        ((1000.0 - balance) / 1000.0) * 100.0
-    };
-    let sharpe = if returns.len() > 2 {
-        let mean: f64 = returns.iter().sum::<f64>() / returns.len() as f64;
-        let var: f64 =
-            returns.iter().map(|&r| (r - mean).powi(2)).sum::<f64>() / returns.len() as f64;
-        if var > 0.0 {
-            (mean / var.sqrt()) * 15.81
-        } else {
-            0.0
-        }
     } else {
         0.0
     };
+    let sharpe = calculate_sharpe(&returns);
 
     SimulationResult {
         pnl: balance - 1000.0,
         sharpe,
         max_dd,
         trades: trade_count,
+    }
+}
+
+fn calculate_sharpe(returns: &[f64]) -> f64 {
+    if returns.len() < 5 {
+        return 0.0;
+    }
+    let mean = returns.iter().sum::<f64>() / returns.len() as f64;
+    let var = returns.iter().map(|&r| (r - mean).powi(2)).sum::<f64>() / returns.len() as f64;
+    if var > 0.0 {
+        (mean / var.sqrt()) * 15.81
+    } else {
+        0.0
+    }
+}
+
+fn dead_result() -> SimulationResult {
+    SimulationResult {
+        pnl: -1000.0,
+        sharpe: 0.0,
+        max_dd: 100.0,
+        trades: 0,
     }
 }
