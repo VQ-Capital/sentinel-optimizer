@@ -12,7 +12,7 @@ use audit::AuditEngine;
 use simulator::{run_simulation, HistoricalTick};
 
 #[derive(Parser, Debug)]
-#[command(author, version, about = "VQ-Capital V14.1 Alpha Strike", long_about = None)]
+#[command(author, version, about = "VQ-Capital V14.3 Alpha Strike", long_about = None)]
 struct Args {
     #[arg(
         short,
@@ -41,26 +41,23 @@ pub struct Genome {
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
-    info!("🧬 VQ-CAPITAL V14.1 ALPHA-STRIKE ENGINE BAŞLATILIYOR...");
+    info!("🧬 VQ-CAPITAL V14.3 ALPHA-STRIKE ENGINE BAŞLATILIYOR...");
 
     let args = Args::parse();
     let audit = AuditEngine::new();
 
-    // 1. Veriyi RAM'e al (Deterministik Arena)
     let mut reader = csv::ReaderBuilder::new()
         .has_headers(true)
         .from_path(&args.csv_file_path)?;
     let ticks: Vec<HistoricalTick> = reader.deserialize::<HistoricalTick>().flatten().collect();
     info!("✅ {} adet tick RAM'de. Arena Hazır!", ticks.len());
 
-    // 2. Popülasyonu Başlat
     let mut population: Vec<Genome> = (0..args.population)
         .map(|_| create_random_genome())
         .collect();
     let mut best_all_time = population[0].clone();
     best_all_time.fitness = -9999999.0;
 
-    // 3. Hafıza Enjeksiyonu
     if let Some(alpha_dna) = audit.load_best_genome() {
         info!("🧠 Hafıza Geri Yüklendi. Alpha DNA sisteme aşılandı.");
         population[0] = alpha_dna.clone();
@@ -73,14 +70,12 @@ fn main() -> Result<()> {
     for gen in 1..=args.generations {
         let start_time = std::time::Instant::now();
 
-        // PARALEL SİMÜLASYON
         population.par_iter_mut().for_each(|genome| {
             let result = run_simulation(&genome.weights, &ticks, &args.symbol);
             genome.pnl = result.pnl;
             genome.sharpe = result.sharpe;
             genome.max_drawdown = result.max_dd;
             genome.trades = result.trades;
-            // 🔥 CERRAHİ: Yeni Fitness Hesaplaması
             genome.fitness =
                 calculate_fitness(result.pnl, result.sharpe, result.max_dd, result.trades);
             genome.generation = gen;
@@ -99,30 +94,26 @@ fn main() -> Result<()> {
             stagnation_counter = 0;
             current_mutation_rate = 0.20;
             is_record = true;
-            audit.save_record_break(&best_all_time)?;
+            let _ = audit.save_record_break(&best_all_time);
         } else {
             stagnation_counter += 1;
-            // 🔥 KATAKLİZMİK MÜDAHALE: 10 nesil durgunluk varsa uzayı karıştır
             if stagnation_counter > 10 {
-                warn!("🌋 [CATACLYSM] Stagnation detected! Injecting high diversity...");
-                current_mutation_rate = 0.85; // Mutasyonu tavan yaptır
+                warn!("🌋 [CATACLYSM] Stagnation! Boosting Diversity.");
+                current_mutation_rate = 0.80;
             } else {
                 current_mutation_rate = (current_mutation_rate + 0.05).min(0.50);
             }
         }
 
-        audit.log_generation(gen, gen_best, current_mutation_rate)?;
+        let _ = audit.log_generation(gen, gen_best, current_mutation_rate);
         audit.print_progress(gen, gen_best, is_record, start_time.elapsed().as_secs_f32());
 
-        // 7. EVRİM (Kataklizm parametresi ile)
         population = evolve_population(
             &population,
             args.population,
             current_mutation_rate,
             stagnation_counter > 15,
         );
-
-        // Stagnation çok uzarsa sayacı sıfırla ki mutasyon düşsün ve yeni bölgeyi tarasın
         if stagnation_counter > 15 {
             stagnation_counter = 0;
         }
@@ -131,34 +122,53 @@ fn main() -> Result<()> {
 }
 
 fn calculate_fitness(pnl: f64, sharpe: f64, max_dd: f64, trades: usize) -> f64 {
-    // 1. Tembellik Cezası (Min 50 işlem şart)
-    if trades < 50 {
-        return -20000.0 + (trades as f64 * 100.0);
+    // 🔥 CERRAHİ 1: KAMIKAZE İPTALİ. Batana sonsuz ceza!
+    if max_dd >= 90.0 {
+        return -100_000.0 - (trades as f64);
     }
 
-    // 2. Risk Cezası (Aşırı Drawdown olanları doğrudan ele)
-    if max_dd > 15.0 {
-        return -10000.0 - max_dd;
+    // 🔥 CERRAHİ 2: Tembellik Cezası (Min 50 işlem)
+    if trades < 50 {
+        return -30000.0 + (trades as f64 * 100.0);
     }
+
+    let overtrading_penalty = if trades > 1500 {
+        (trades - 1500) as f64 * 2.0
+    } else {
+        0.0
+    };
 
     if pnl <= 0.0 {
-        // Zarar bölgesinde: Az batanı ve çok işlem yapanı ödüllendir (öğrenme için)
-        pnl * (1.0 + (max_dd / 5.0)) - 100.0
+        pnl - (max_dd * 100.0) - overtrading_penalty
     } else {
-        // 🔥 ALPHA STRIKE: Kâr bölgesinde Sharpe ve İşlem Sayısı logaritmik çarpanı
-        // Drawdown kârın %10'undan fazlaysa cezalandır
-        let dd_penalty = if max_dd > 2.0 { 0.5 } else { 1.0 };
-        pnl * sharpe.max(0.1) * (trades as f64).log10() * dd_penalty
+        let dd_mult = if max_dd > 10.0 {
+            0.1
+        } else if max_dd > 5.0 {
+            0.5
+        } else {
+            1.0
+        };
+        (pnl * sharpe.powi(2) * (trades as f64).log10() * dd_mult) - overtrading_penalty
     }
 }
 
 fn create_random_genome() -> Genome {
     let mut rng = rand::thread_rng();
-    let mut dna: Vec<f32> = (0..39).map(|_| rng.gen_range(-1.0..1.0)).collect(); // 36 weights + 3 biases
-    dna.push(rng.gen_range(0.008..0.030)); // 39: TP
-    dna.push(rng.gen_range(0.004..0.015)); // 40: SL
-    dna.push(rng.gen_range(1000.0..10000.0)); // 41: Cooldown
-    dna.push(rng.gen_range(0.15..0.50)); // 42: Risk Pct
+    let mut dna: Vec<f32> = Vec::with_capacity(43);
+
+    for _ in 0..36 {
+        dna.push(rng.gen_range(-1.0..1.0));
+    }
+
+    dna.push(rng.gen_range(0.2..0.8)); // 36: HOLD bias
+    dna.push(rng.gen_range(-0.1..0.1)); // 37: BUY bias
+    dna.push(rng.gen_range(-0.1..0.1)); // 38: SELL bias
+
+    dna.push(rng.gen_range(0.010..0.030)); // 39: TP
+    dna.push(rng.gen_range(0.005..0.015)); // 40: SL
+    dna.push(rng.gen_range(2000.0..10000.0)); // 41: Cooldown
+    dna.push(rng.gen_range(0.01..0.05)); // 🔥 42: Risk (%1-%5 kilitlendi)
+
     Genome {
         weights: dna,
         fitness: -9999999.0,
@@ -179,11 +189,13 @@ fn evolve_population(
     let mut new_pop = Vec::with_capacity(total_size);
     let mut rng = rand::thread_rng();
 
-    // Elitleri Koru
-    let elite_count = if is_cataclysm { 1 } else { total_size / 20 };
+    let elite_count = if is_cataclysm {
+        1
+    } else {
+        (total_size / 20).max(2)
+    };
     new_pop.extend_from_slice(&current_pop[0..elite_count]);
 
-    // Kataklizm varsa popülasyonun yarısını tamamen rastgele yap
     let random_injection = if is_cataclysm { total_size / 2 } else { 0 };
 
     while new_pop.len() < total_size - random_injection {
@@ -198,45 +210,36 @@ fn evolve_population(
                 p2.weights[i]
             };
 
-            // Mutasyon
             if rng.gen_bool(mut_rate as f64) {
-                if i < 39 {
-                    gene += rng.gen_range(-0.4..0.4);
-                }
-                // Ağırlık mutasyonu
-                else if i == 39 || i == 40 {
-                    gene += rng.gen_range(-0.002..0.002);
-                }
-                // TP/SL mutasyonu
-                else if i == 41 {
-                    gene += rng.gen_range(-1000.0..1000.0);
-                }
-                // Cooldown
-                else {
-                    gene += rng.gen_range(-0.1..0.1);
-                } // Risk
+                if i < 36 {
+                    gene += rng.gen_range(-0.3..0.3);
+                } else if (36..39).contains(&i) {
+                    gene += rng.gen_range(-0.05..0.05);
+                } else if i == 39 || i == 40 {
+                    gene += rng.gen_range(-0.001..0.001);
+                } else if i == 41 {
+                    gene += rng.gen_range(-500.0..500.0);
+                } else {
+                    gene += rng.gen_range(-0.01..0.01);
+                } // Risk Mutasyonu
             }
 
-            // Clamping (Sınırlar)
+            // Final Clamping
             if i == 39 {
                 gene = gene.clamp(0.006, 0.05);
-            }
-            // TP min 0.6%
-            else if i == 40 {
+            } else if i == 40 {
                 gene = gene.clamp(0.004, 0.03);
-            }
-            // SL min 0.4%
-            else if i == 41 {
+            } else if i == 41 {
                 gene = gene.clamp(1000.0, 30000.0);
+            } else if i == 42 {
+                gene = gene.clamp(0.01, 0.05);
             }
-            // Cooldown 1s - 30s
-            else if i == 42 {
-                gene = gene.clamp(0.15, 0.80);
+            // 🔥 Risk Clamping (1%-5%)
+            else if (36..39).contains(&i) {
+                gene = gene.clamp(-0.5, 0.5);
+            } else {
+                gene = gene.clamp(-3.0, 3.0);
             }
-            // Risk
-            else {
-                gene = gene.clamp(-4.0, 4.0);
-            } // Weights & Biases
 
             child_dna.push(gene);
         }
@@ -251,10 +254,8 @@ fn evolve_population(
         });
     }
 
-    // Yeni kan enjeksiyonu
     while new_pop.len() < total_size {
         new_pop.push(create_random_genome());
     }
-
     new_pop
 }
