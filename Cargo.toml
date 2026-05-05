@@ -18,4 +18,4 @@ chrono = "0.4"
 clap = { version = "4.4", features = ["derive"] }
 
 # 🔥 YENİ: Kendi saf mantık çekirdeğimiz!
-sentinel-core = { path = "../sentinel-core" }
+sentinel-core = { path = "sentinel-core" }
