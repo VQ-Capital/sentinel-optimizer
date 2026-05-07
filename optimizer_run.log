@@ -1,0 +1,643 @@
+nohup: girdi yok sayılıyor
+    Finished `release` profile [optimized] target(s) in 0.06s
+     Running `target/release/sentinel-optimizer --csv-file-path ../sentinel-data/datasets/BTCUSDT_30D.csv --symbol BTCUSDT --generations 500 --population 250`
+[2m2026-05-05T14:28:07.212255Z[0m [32m INFO[0m [2msentinel_optimizer[0m[2m:[0m 🧬 VQ-CAPITAL V14.3 ALPHA-STRIKE ENGINE BAŞLATILIYOR...
+[2m2026-05-05T14:28:15.252695Z[0m [32m INFO[0m [2msentinel_optimizer[0m[2m:[0m ✅ 25243698 adet tick RAM'de. Arena Hazır!
+🌟 REKOR! [Gen 1] PnL: $  -10.78 | Trades:  2532 | Fit:   -2079.03 | TP: 0.013 | SL: 0.014 | Risk: %1  | Süre: 307.04s
+🌟 REKOR! [Gen 2] PnL: $  -10.78 | Trades:  2259 | Fit:   -1533.55 | TP: 0.013 | SL: 0.007 | Risk: %1  | Süre: 303.96s
+🌟 REKOR! [Gen 3] PnL: $  -10.78 | Trades:  1885 | Fit:    -786.50 | TP: 0.024 | SL: 0.012 | Risk: %1  | Süre: 301.58s
+🌟 REKOR! [Gen 4] PnL: $  -10.78 | Trades:  1510 | Fit:     -37.92 | TP: 0.014 | SL: 0.012 | Risk: %1  | Süre: 301.31s
+🌟 REKOR! [Gen 5] PnL: $  -10.78 | Trades:  1471 | Fit:     -18.11 | TP: 0.014 | SL: 0.014 | Risk: %1  | Süre: 303.09s
+🌟 REKOR! [Gen 6] PnL: $  -10.78 | Trades:  1481 | Fit:     -18.05 | TP: 0.019 | SL: 0.014 | Risk: %1  | Süre: 301.58s
+🌟 REKOR! [Gen 7] PnL: $  -10.78 | Trades:  1497 | Fit:     -17.98 | TP: 0.018 | SL: 0.005 | Risk: %1  | Süre: 301.75s
+🔄 İlerleme [Gen 8] PnL: $  -10.78 | Trades:  1497 | Fit:     -17.98 | TP: 0.018 | SL: 0.005 | Risk: %1  | Süre: 300.86s
+🔄 İlerleme [Gen 9] PnL: $  -10.78 | Trades:  1497 | Fit:     -17.98 | TP: 0.018 | SL: 0.005 | Risk: %1  | Süre: 301.26s
+🌟 REKOR! [Gen 10] PnL: $  -10.78 | Trades:  1499 | Fit:     -17.97 | TP: 0.018 | SL: 0.006 | Risk: %1  | Süre: 303.30s
+🔄 İlerleme [Gen 11] PnL: $  -10.78 | Trades:  1499 | Fit:     -17.97 | TP: 0.018 | SL: 0.006 | Risk: %1  | Süre: 302.91s
+🌟 REKOR! [Gen 12] PnL: $  -10.78 | Trades:  1500 | Fit:     -17.97 | TP: 0.019 | SL: 0.006 | Risk: %1  | Süre: 302.46s
+🔄 İlerleme [Gen 13] PnL: $  -10.78 | Trades:  1500 | Fit:     -17.97 | TP: 0.019 | SL: 0.006 | Risk: %1  | Süre: 302.81s
+🔄 İlerleme [Gen 14] PnL: $  -10.78 | Trades:  1500 | Fit:     -17.97 | TP: 0.019 | SL: 0.006 | Risk: %1  | Süre: 301.96s
+🌟 REKOR! [Gen 15] PnL: $  -10.78 | Trades:  1500 | Fit:     -17.96 | TP: 0.018 | SL: 0.004 | Risk: %1  | Süre: 300.92s
+🔄 İlerleme [Gen 16] PnL: $  -10.78 | Trades:  1500 | Fit:     -17.96 | TP: 0.018 | SL: 0.004 | Risk: %1  | Süre: 307.77s
+🔄 İlerleme [Gen 17] PnL: $  -10.78 | Trades:  1500 | Fit:     -17.96 | TP: 0.018 | SL: 0.004 | Risk: %1  | Süre: 301.39s
+🌟 REKOR! [Gen 18] PnL: $   -5.09 | Trades:   729 | Fit:     -12.07 | TP: 0.018 | SL: 0.004 | Risk: %1  | Süre: 303.49s
+🌟 REKOR! [Gen 19] PnL: $   -5.08 | Trades:   872 | Fit:     -10.92 | TP: 0.018 | SL: 0.004 | Risk: %1  | Süre: 302.54s
+🌟 REKOR! [Gen 20] PnL: $   -5.08 | Trades:  1072 | Fit:      -9.83 | TP: 0.018 | SL: 0.006 | Risk: %1  | Süre: 302.78s
+🌟 REKOR! [Gen 21] PnL: $   -1.85 | Trades:   334 | Fit:      -7.40 | TP: 0.020 | SL: 0.015 | Risk: %1  | Süre: 302.08s
+🌟 REKOR! [Gen 22] PnL: $   -1.85 | Trades:   410 | Fit:      -6.37 | TP: 0.020 | SL: 0.006 | Risk: %1  | Süre: 302.71s
+🌟 REKOR! [Gen 23] PnL: $   -1.85 | Trades:   469 | Fit:      -5.79 | TP: 0.018 | SL: 0.004 | Risk: %1  | Süre: 303.30s
+🌟 REKOR! [Gen 24] PnL: $   -1.85 | Trades:   474 | Fit:      -5.76 | TP: 0.020 | SL: 0.004 | Risk: %1  | Süre: 302.89s
+🌟 REKOR! [Gen 25] PnL: $   -1.85 | Trades:   475 | Fit:      -5.75 | TP: 0.020 | SL: 0.006 | Risk: %1  | Süre: 302.43s
+🌟 REKOR! [Gen 26] PnL: $   -1.85 | Trades:   489 | Fit:      -5.63 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 301.00s
+🔄 İlerleme [Gen 27] PnL: $   -1.85 | Trades:   489 | Fit:      -5.63 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 301.15s
+🌟 REKOR! [Gen 28] PnL: $   -1.85 | Trades:   492 | Fit:      -5.61 | TP: 0.019 | SL: 0.004 | Risk: %1  | Süre: 302.02s
+🌟 REKOR! [Gen 29] PnL: $   -1.85 | Trades:   494 | Fit:      -5.60 | TP: 0.019 | SL: 0.004 | Risk: %1  | Süre: 300.52s
+🌟 REKOR! [Gen 30] PnL: $   -1.85 | Trades:   494 | Fit:      -5.59 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 299.93s
+🌟 REKOR! [Gen 31] PnL: $   -1.85 | Trades:   496 | Fit:      -5.59 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 300.04s
+🌟 REKOR! [Gen 32] PnL: $   -1.85 | Trades:   495 | Fit:      -5.59 | TP: 0.019 | SL: 0.004 | Risk: %1  | Süre: 300.24s
+🌟 REKOR! [Gen 33] PnL: $   -1.85 | Trades:   496 | Fit:      -5.58 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 298.67s
+🔄 İlerleme [Gen 34] PnL: $   -1.85 | Trades:   496 | Fit:      -5.58 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 299.75s
+🌟 REKOR! [Gen 35] PnL: $   -1.85 | Trades:   496 | Fit:      -5.58 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 298.16s
+🌟 REKOR! [Gen 36] PnL: $   -1.85 | Trades:   496 | Fit:      -5.58 | TP: 0.019 | SL: 0.016 | Risk: %1  | Süre: 298.70s
+🔄 İlerleme [Gen 37] PnL: $   -1.85 | Trades:   496 | Fit:      -5.58 | TP: 0.019 | SL: 0.016 | Risk: %1  | Süre: 301.33s
+🌟 REKOR! [Gen 38] PnL: $   -1.85 | Trades:   497 | Fit:      -5.58 | TP: 0.018 | SL: 0.016 | Risk: %1  | Süre: 299.76s
+🌟 REKOR! [Gen 39] PnL: $   -1.85 | Trades:   498 | Fit:      -5.57 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 298.70s
+🔄 İlerleme [Gen 40] PnL: $   -1.85 | Trades:   498 | Fit:      -5.57 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 309.87s
+🔄 İlerleme [Gen 41] PnL: $   -1.85 | Trades:   498 | Fit:      -5.57 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 297.86s
+🌟 REKOR! [Gen 42] PnL: $   -1.85 | Trades:   498 | Fit:      -5.56 | TP: 0.019 | SL: 0.014 | Risk: %1  | Süre: 297.96s
+🔄 İlerleme [Gen 43] PnL: $   -1.85 | Trades:   498 | Fit:      -5.56 | TP: 0.019 | SL: 0.014 | Risk: %1  | Süre: 296.92s
+🌟 REKOR! [Gen 44] PnL: $   -1.85 | Trades:   499 | Fit:      -5.56 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 297.72s
+🔄 İlerleme [Gen 45] PnL: $   -1.85 | Trades:   499 | Fit:      -5.56 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 298.32s
+🔄 İlerleme [Gen 46] PnL: $   -1.85 | Trades:   499 | Fit:      -5.56 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 296.32s
+🌟 REKOR! [Gen 47] PnL: $   -1.85 | Trades:   499 | Fit:      -5.56 | TP: 0.018 | SL: 0.015 | Risk: %1  | Süre: 296.88s
+🌟 REKOR! [Gen 48] PnL: $   -1.85 | Trades:   500 | Fit:      -5.55 | TP: 0.019 | SL: 0.014 | Risk: %1  | Süre: 297.07s
+🔄 İlerleme [Gen 49] PnL: $   -1.85 | Trades:   500 | Fit:      -5.55 | TP: 0.019 | SL: 0.014 | Risk: %1  | Süre: 296.64s
+🔄 İlerleme [Gen 50] PnL: $   -1.85 | Trades:   500 | Fit:      -5.55 | TP: 0.019 | SL: 0.014 | Risk: %1  | Süre: 296.33s
+🌟 REKOR! [Gen 51] PnL: $   -1.85 | Trades:   503 | Fit:      -5.53 | TP: 0.020 | SL: 0.015 | Risk: %1  | Süre: 296.33s
+🌟 REKOR! [Gen 52] PnL: $   -1.85 | Trades:   504 | Fit:      -5.52 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 295.34s
+🔄 İlerleme [Gen 53] PnL: $   -1.85 | Trades:   504 | Fit:      -5.52 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 295.01s
+🌟 REKOR! [Gen 54] PnL: $   -1.85 | Trades:   505 | Fit:      -5.52 | TP: 0.019 | SL: 0.016 | Risk: %1  | Süre: 295.08s
+🔄 İlerleme [Gen 55] PnL: $   -1.85 | Trades:   505 | Fit:      -5.52 | TP: 0.019 | SL: 0.016 | Risk: %1  | Süre: 294.18s
+🌟 REKOR! [Gen 56] PnL: $   -1.85 | Trades:   506 | Fit:      -5.51 | TP: 0.019 | SL: 0.016 | Risk: %1  | Süre: 293.95s
+🌟 REKOR! [Gen 57] PnL: $   -1.85 | Trades:   509 | Fit:      -5.49 | TP: 0.019 | SL: 0.016 | Risk: %1  | Süre: 294.29s
+🌟 REKOR! [Gen 58] PnL: $   -1.85 | Trades:   512 | Fit:      -5.46 | TP: 0.020 | SL: 0.015 | Risk: %1  | Süre: 294.59s
+🔄 İlerleme [Gen 59] PnL: $   -1.85 | Trades:   512 | Fit:      -5.46 | TP: 0.020 | SL: 0.015 | Risk: %1  | Süre: 295.14s
+🔄 İlerleme [Gen 60] PnL: $   -1.85 | Trades:   512 | Fit:      -5.46 | TP: 0.020 | SL: 0.015 | Risk: %1  | Süre: 294.58s
+🔄 İlerleme [Gen 61] PnL: $   -1.85 | Trades:   512 | Fit:      -5.46 | TP: 0.020 | SL: 0.015 | Risk: %1  | Süre: 293.11s
+🔄 İlerleme [Gen 62] PnL: $   -1.85 | Trades:   512 | Fit:      -5.46 | TP: 0.020 | SL: 0.015 | Risk: %1  | Süre: 295.37s
+🔄 İlerleme [Gen 63] PnL: $   -1.85 | Trades:   512 | Fit:      -5.46 | TP: 0.020 | SL: 0.015 | Risk: %1  | Süre: 295.14s
+🔄 İlerleme [Gen 64] PnL: $   -1.85 | Trades:   512 | Fit:      -5.46 | TP: 0.020 | SL: 0.015 | Risk: %1  | Süre: 295.43s
+🔄 İlerleme [Gen 65] PnL: $   -1.85 | Trades:   512 | Fit:      -5.46 | TP: 0.020 | SL: 0.015 | Risk: %1  | Süre: 295.80s
+🔄 İlerleme [Gen 66] PnL: $   -1.85 | Trades:   512 | Fit:      -5.46 | TP: 0.020 | SL: 0.015 | Risk: %1  | Süre: 295.31s
+🌟 REKOR! [Gen 67] PnL: $   -1.63 | Trades:   438 | Fit:      -5.36 | TP: 0.020 | SL: 0.015 | Risk: %1  | Süre: 295.28s
+🌟 REKOR! [Gen 68] PnL: $   -1.63 | Trades:   444 | Fit:      -5.31 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 293.98s
+🌟 REKOR! [Gen 69] PnL: $   -1.63 | Trades:   448 | Fit:      -5.28 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 295.17s
+🌟 REKOR! [Gen 70] PnL: $   -1.63 | Trades:   447 | Fit:      -5.28 | TP: 0.021 | SL: 0.016 | Risk: %1  | Süre: 308.18s
+🌟 REKOR! [Gen 71] PnL: $   -1.23 | Trades:   333 | Fit:      -4.93 | TP: 0.020 | SL: 0.015 | Risk: %1  | Süre: 295.59s
+🌟 REKOR! [Gen 72] PnL: $   -0.62 | Trades:   166 | Fit:      -4.35 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 293.04s
+🌟 REKOR! [Gen 73] PnL: $   -0.62 | Trades:   167 | Fit:      -4.34 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 294.02s
+🌟 REKOR! [Gen 74] PnL: $   -0.62 | Trades:   169 | Fit:      -4.28 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 295.80s
+🔄 İlerleme [Gen 75] PnL: $   -0.62 | Trades:   169 | Fit:      -4.28 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 295.05s
+🌟 REKOR! [Gen 76] PnL: $   -0.62 | Trades:   171 | Fit:      -4.25 | TP: 0.021 | SL: 0.016 | Risk: %1  | Süre: 293.89s
+🌟 REKOR! [Gen 77] PnL: $   -0.62 | Trades:   171 | Fit:      -4.23 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 293.73s
+🌟 REKOR! [Gen 78] PnL: $   -0.62 | Trades:   172 | Fit:      -4.23 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 294.10s
+🔄 İlerleme [Gen 79] PnL: $   -0.62 | Trades:   172 | Fit:      -4.23 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 294.74s
+🔄 İlerleme [Gen 80] PnL: $   -0.62 | Trades:   172 | Fit:      -4.23 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 294.24s
+🌟 REKOR! [Gen 81] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 294.35s
+🔄 İlerleme [Gen 82] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 292.97s
+🔄 İlerleme [Gen 83] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 292.74s
+🔄 İlerleme [Gen 84] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 292.04s
+🔄 İlerleme [Gen 85] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 294.43s
+🔄 İlerleme [Gen 86] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 294.52s
+🔄 İlerleme [Gen 87] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 294.06s
+🔄 İlerleme [Gen 88] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 294.25s
+🔄 İlerleme [Gen 89] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 294.24s
+🔄 İlerleme [Gen 90] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 295.18s
+🔄 İlerleme [Gen 91] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 294.57s
+[2m2026-05-05T22:05:28.020910Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 92] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 293.91s
+[2m2026-05-05T22:10:26.288521Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 93] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 298.27s
+[2m2026-05-05T22:15:23.896387Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 94] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 297.61s
+[2m2026-05-05T22:20:20.267375Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 95] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.37s
+[2m2026-05-05T22:25:16.428414Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 96] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.16s
+[2m2026-05-05T22:30:13.218738Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 97] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.79s
+🔄 İlerleme [Gen 98] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 300.28s
+🔄 İlerleme [Gen 99] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 295.48s
+🔄 İlerleme [Gen 100] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 297.85s
+🔄 İlerleme [Gen 101] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 302.43s
+🔄 İlerleme [Gen 102] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 297.37s
+🔄 İlerleme [Gen 103] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 297.37s
+🔄 İlerleme [Gen 104] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.87s
+🔄 İlerleme [Gen 105] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.81s
+🔄 İlerleme [Gen 106] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 295.60s
+🔄 İlerleme [Gen 107] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 294.89s
+[2m2026-05-05T23:24:44.902414Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 108] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.74s
+[2m2026-05-05T23:29:41.031578Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 109] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.13s
+[2m2026-05-05T23:34:45.660676Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 110] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 304.63s
+[2m2026-05-05T23:39:43.280745Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 111] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 297.62s
+[2m2026-05-05T23:44:40.290484Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 112] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 297.01s
+[2m2026-05-05T23:49:37.860361Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 113] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 297.57s
+🔄 İlerleme [Gen 114] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 300.62s
+🔄 İlerleme [Gen 115] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.41s
+🔄 İlerleme [Gen 116] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.63s
+🔄 İlerleme [Gen 117] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 295.20s
+🔄 İlerleme [Gen 118] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 294.91s
+🔄 İlerleme [Gen 119] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.75s
+🔄 İlerleme [Gen 120] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.69s
+🔄 İlerleme [Gen 121] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 295.94s
+🔄 İlerleme [Gen 122] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 295.24s
+🔄 İlerleme [Gen 123] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 295.14s
+[2m2026-05-06T00:43:57.757784Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 124] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.36s
+[2m2026-05-06T00:48:55.861587Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 125] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 298.10s
+[2m2026-05-06T00:53:52.760452Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 126] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.90s
+[2m2026-05-06T00:58:50.437123Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 127] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 297.68s
+[2m2026-05-06T01:03:47.691173Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 128] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 297.25s
+[2m2026-05-06T01:08:44.445540Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 129] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.75s
+🔄 İlerleme [Gen 130] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 300.62s
+🔄 İlerleme [Gen 131] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 295.67s
+🔄 İlerleme [Gen 132] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 297.17s
+🔄 İlerleme [Gen 133] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 298.34s
+🔄 İlerleme [Gen 134] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.14s
+🔄 İlerleme [Gen 135] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 297.08s
+🔄 İlerleme [Gen 136] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.81s
+🔄 İlerleme [Gen 137] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.35s
+🔄 İlerleme [Gen 138] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.70s
+🔄 İlerleme [Gen 139] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 295.41s
+[2m2026-05-06T02:03:09.687065Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 140] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 294.95s
+[2m2026-05-06T02:08:07.870786Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 141] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 298.18s
+[2m2026-05-06T02:13:06.631076Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 142] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 298.76s
+[2m2026-05-06T02:18:06.138318Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 143] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 299.51s
+[2m2026-05-06T02:23:02.455364Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 144] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.32s
+[2m2026-05-06T02:28:01.609246Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 145] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 299.15s
+🔄 İlerleme [Gen 146] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 300.38s
+🔄 İlerleme [Gen 147] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 295.35s
+🔄 İlerleme [Gen 148] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.67s
+🔄 İlerleme [Gen 149] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 296.87s
+🔄 İlerleme [Gen 150] PnL: $   -0.62 | Trades:   174 | Fit:      -4.18 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 295.83s
+🌟 REKOR! [Gen 151] PnL: $   -0.42 | Trades:   113 | Fit:      -4.14 | TP: 0.020 | SL: 0.017 | Risk: %1  | Süre: 297.68s
+🌟 REKOR! [Gen 152] PnL: $   -0.42 | Trades:   114 | Fit:      -4.12 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 297.84s
+🌟 REKOR! [Gen 153] PnL: $   -0.42 | Trades:   114 | Fit:      -4.12 | TP: 0.020 | SL: 0.016 | Risk: %1  | Süre: 303.30s
+🌟 REKOR! [Gen 154] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 297.76s
+🔄 İlerleme [Gen 155] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 297.54s
+🔄 İlerleme [Gen 156] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 296.60s
+🔄 İlerleme [Gen 157] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 328.64s
+🔄 İlerleme [Gen 158] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 297.39s
+🔄 İlerleme [Gen 159] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 296.57s
+🔄 İlerleme [Gen 160] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 297.08s
+🔄 İlerleme [Gen 161] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 297.74s
+🔄 İlerleme [Gen 162] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 297.42s
+🔄 İlerleme [Gen 163] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 297.61s
+🔄 İlerleme [Gen 164] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 298.03s
+[2m2026-05-06T04:07:44.673124Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 165] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 296.75s
+[2m2026-05-06T04:12:44.245378Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 166] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 299.57s
+[2m2026-05-06T04:17:41.613629Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 167] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 297.37s
+[2m2026-05-06T04:22:39.454261Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 168] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 297.84s
+[2m2026-05-06T04:27:38.621435Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 169] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 299.17s
+[2m2026-05-06T04:32:37.607778Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 170] PnL: $   -0.42 | Trades:   115 | Fit:      -4.09 | TP: 0.019 | SL: 0.017 | Risk: %1  | Süre: 298.99s
+🌟 REKOR! [Gen 171] PnL: $   -0.42 | Trades:   115 | Fit:      -4.07 | TP: 0.018 | SL: 0.018 | Risk: %1  | Süre: 301.49s
+🌟 REKOR! [Gen 172] PnL: $   -0.42 | Trades:   116 | Fit:      -4.04 | TP: 0.018 | SL: 0.016 | Risk: %1  | Süre: 296.81s
+🔄 İlerleme [Gen 173] PnL: $   -0.42 | Trades:   116 | Fit:      -4.04 | TP: 0.018 | SL: 0.016 | Risk: %1  | Süre: 294.49s
+🌟 REKOR! [Gen 174] PnL: $   -0.42 | Trades:   117 | Fit:      -4.03 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 294.90s
+🌟 REKOR! [Gen 175] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 293.01s
+🔄 İlerleme [Gen 176] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 293.17s
+🔄 İlerleme [Gen 177] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 292.94s
+🔄 İlerleme [Gen 178] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.59s
+🔄 İlerleme [Gen 179] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 293.37s
+🔄 İlerleme [Gen 180] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 294.14s
+🔄 İlerleme [Gen 181] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 293.47s
+🔄 İlerleme [Gen 182] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 294.89s
+🔄 İlerleme [Gen 183] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 295.09s
+🔄 İlerleme [Gen 184] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 293.70s
+🔄 İlerleme [Gen 185] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 294.86s
+[2m2026-05-06T05:51:15.201045Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 186] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 294.69s
+[2m2026-05-06T05:56:10.984332Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 187] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 295.78s
+[2m2026-05-06T06:01:07.604566Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 188] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.62s
+[2m2026-05-06T06:06:03.998975Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 189] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.39s
+[2m2026-05-06T06:11:00.534214Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 190] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.54s
+[2m2026-05-06T06:15:57.065440Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 191] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.53s
+🔄 İlerleme [Gen 192] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 300.55s
+🔄 İlerleme [Gen 193] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.73s
+🔄 İlerleme [Gen 194] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.00s
+🔄 İlerleme [Gen 195] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.00s
+🔄 İlerleme [Gen 196] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.93s
+🔄 İlerleme [Gen 197] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.42s
+🔄 İlerleme [Gen 198] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.75s
+🔄 İlerleme [Gen 199] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.23s
+🔄 İlerleme [Gen 200] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.99s
+🔄 İlerleme [Gen 201] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 295.18s
+[2m2026-05-06T07:10:25.272282Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 202] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.43s
+[2m2026-05-06T07:15:23.618904Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 203] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.35s
+[2m2026-05-06T07:20:21.874262Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 204] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.26s
+[2m2026-05-06T07:25:19.610425Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 205] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.74s
+[2m2026-05-06T07:30:17.165997Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 206] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.56s
+[2m2026-05-06T07:35:14.969912Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 207] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.80s
+🔄 İlerleme [Gen 208] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 300.14s
+🔄 İlerleme [Gen 209] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.85s
+🔄 İlerleme [Gen 210] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.25s
+🔄 İlerleme [Gen 211] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.03s
+🔄 İlerleme [Gen 212] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.07s
+🔄 İlerleme [Gen 213] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.69s
+🔄 İlerleme [Gen 214] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.32s
+🔄 İlerleme [Gen 215] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.60s
+🔄 İlerleme [Gen 216] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.32s
+🔄 İlerleme [Gen 217] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.23s
+[2m2026-05-06T08:29:54.057590Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 218] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.59s
+[2m2026-05-06T08:34:53.055255Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 219] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.00s
+[2m2026-05-06T08:39:52.890551Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 220] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.84s
+[2m2026-05-06T08:44:53.858609Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 221] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 300.97s
+[2m2026-05-06T08:49:52.909309Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 222] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.05s
+[2m2026-05-06T08:54:53.534273Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 223] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 300.62s
+🔄 İlerleme [Gen 224] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 301.55s
+🔄 İlerleme [Gen 225] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.28s
+🔄 İlerleme [Gen 226] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.73s
+🔄 İlerleme [Gen 227] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.81s
+🔄 İlerleme [Gen 228] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.95s
+🔄 İlerleme [Gen 229] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.81s
+🔄 İlerleme [Gen 230] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.01s
+🔄 İlerleme [Gen 231] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.42s
+🔄 İlerleme [Gen 232] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.63s
+🔄 İlerleme [Gen 233] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.80s
+[2m2026-05-06T09:49:25.527726Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 234] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.01s
+[2m2026-05-06T09:54:22.708779Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 235] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.18s
+[2m2026-05-06T09:59:21.800631Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 236] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.09s
+[2m2026-05-06T10:04:20.893410Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 237] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.09s
+[2m2026-05-06T10:09:20.445632Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 238] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.55s
+[2m2026-05-06T10:14:19.172667Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 239] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.72s
+🔄 İlerleme [Gen 240] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 304.44s
+🔄 İlerleme [Gen 241] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.80s
+🔄 İlerleme [Gen 242] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.24s
+🔄 İlerleme [Gen 243] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.32s
+🔄 İlerleme [Gen 244] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.58s
+🔄 İlerleme [Gen 245] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.63s
+🔄 İlerleme [Gen 246] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.35s
+🔄 İlerleme [Gen 247] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.22s
+🔄 İlerleme [Gen 248] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.23s
+🔄 İlerleme [Gen 249] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.54s
+[2m2026-05-06T11:09:00.383833Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 250] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.85s
+[2m2026-05-06T11:13:56.659361Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 251] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.28s
+[2m2026-05-06T11:18:56.139212Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 252] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.48s
+[2m2026-05-06T11:23:52.939712Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 253] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.80s
+[2m2026-05-06T11:28:49.995747Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 254] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.06s
+[2m2026-05-06T11:33:46.886746Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 255] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.89s
+🔄 İlerleme [Gen 256] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 300.85s
+🔄 İlerleme [Gen 257] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.44s
+🔄 İlerleme [Gen 258] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.70s
+🔄 İlerleme [Gen 259] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.02s
+🔄 İlerleme [Gen 260] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.20s
+🔄 İlerleme [Gen 261] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.22s
+🔄 İlerleme [Gen 262] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.72s
+🔄 İlerleme [Gen 263] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.46s
+🔄 İlerleme [Gen 264] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.54s
+🔄 İlerleme [Gen 265] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.11s
+[2m2026-05-06T12:28:25.147585Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 266] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.02s
+[2m2026-05-06T12:33:23.846506Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 267] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.70s
+[2m2026-05-06T12:38:22.925518Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 268] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.08s
+[2m2026-05-06T12:43:23.626974Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 269] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 300.70s
+[2m2026-05-06T12:48:22.476028Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 270] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.85s
+[2m2026-05-06T12:53:21.797706Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 271] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.32s
+🔄 İlerleme [Gen 272] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.82s
+🔄 İlerleme [Gen 273] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.97s
+🔄 İlerleme [Gen 274] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.17s
+🔄 İlerleme [Gen 275] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 300.07s
+🔄 İlerleme [Gen 276] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.02s
+🔄 İlerleme [Gen 277] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.55s
+🔄 İlerleme [Gen 278] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 301.48s
+🔄 İlerleme [Gen 279] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 295.84s
+🔄 İlerleme [Gen 280] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.60s
+🔄 İlerleme [Gen 281] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.45s
+[2m2026-05-06T13:48:05.566395Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 282] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.80s
+[2m2026-05-06T13:53:04.927003Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 283] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.36s
+[2m2026-05-06T13:58:04.605529Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 284] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.68s
+[2m2026-05-06T14:03:02.958051Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 285] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.35s
+[2m2026-05-06T14:08:02.371785Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 286] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.41s
+[2m2026-05-06T14:13:02.461040Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 287] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 300.09s
+🔄 İlerleme [Gen 288] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 301.62s
+🔄 İlerleme [Gen 289] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.84s
+🔄 İlerleme [Gen 290] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.60s
+🔄 İlerleme [Gen 291] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.71s
+🔄 İlerleme [Gen 292] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.92s
+🔄 İlerleme [Gen 293] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.74s
+🔄 İlerleme [Gen 294] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.62s
+🔄 İlerleme [Gen 295] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 295.63s
+🔄 İlerleme [Gen 296] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.09s
+🔄 İlerleme [Gen 297] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.31s
+[2m2026-05-06T15:07:35.180913Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 298] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.64s
+[2m2026-05-06T15:12:43.734312Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 299] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 308.55s
+[2m2026-05-06T15:17:43.680951Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 300] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.95s
+[2m2026-05-06T15:22:41.181701Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 301] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.50s
+[2m2026-05-06T15:27:40.221995Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 302] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.04s
+[2m2026-05-06T15:32:51.954521Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 303] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 311.73s
+🔄 İlerleme [Gen 304] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 301.22s
+🔄 İlerleme [Gen 305] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 295.86s
+🔄 İlerleme [Gen 306] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.60s
+🔄 İlerleme [Gen 307] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.47s
+🔄 İlerleme [Gen 308] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.51s
+🔄 İlerleme [Gen 309] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.91s
+🔄 İlerleme [Gen 310] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.89s
+🔄 İlerleme [Gen 311] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.28s
+🔄 İlerleme [Gen 312] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.55s
+🔄 İlerleme [Gen 313] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.88s
+[2m2026-05-06T16:27:21.877054Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 314] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.74s
+[2m2026-05-06T16:32:20.335099Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 315] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.46s
+[2m2026-05-06T16:37:18.891162Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 316] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.56s
+[2m2026-05-06T16:42:15.869594Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 317] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.98s
+[2m2026-05-06T16:47:14.321125Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 318] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.45s
+[2m2026-05-06T16:52:13.345524Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 319] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.02s
+🔄 İlerleme [Gen 320] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 306.18s
+🔄 İlerleme [Gen 321] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.43s
+🔄 İlerleme [Gen 322] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.49s
+🔄 İlerleme [Gen 323] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.14s
+🔄 İlerleme [Gen 324] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.03s
+🔄 İlerleme [Gen 325] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.37s
+🔄 İlerleme [Gen 326] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.47s
+🔄 İlerleme [Gen 327] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.51s
+🔄 İlerleme [Gen 328] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 295.30s
+🔄 İlerleme [Gen 329] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.50s
+[2m2026-05-06T17:46:52.817736Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 330] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.07s
+[2m2026-05-06T17:51:51.550651Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 331] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.73s
+[2m2026-05-06T17:56:49.215488Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 332] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.66s
+[2m2026-05-06T18:01:48.694409Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 333] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.48s
+[2m2026-05-06T18:06:49.046246Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 334] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 300.35s
+[2m2026-05-06T18:11:48.212041Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 335] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.17s
+🔄 İlerleme [Gen 336] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 300.75s
+🔄 İlerleme [Gen 337] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.31s
+🔄 İlerleme [Gen 338] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.98s
+🔄 İlerleme [Gen 339] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.66s
+🔄 İlerleme [Gen 340] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.51s
+🔄 İlerleme [Gen 341] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.45s
+🔄 İlerleme [Gen 342] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.72s
+🔄 İlerleme [Gen 343] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.10s
+🔄 İlerleme [Gen 344] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.66s
+🔄 İlerleme [Gen 345] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.83s
+[2m2026-05-06T19:06:23.599028Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 346] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.40s
+[2m2026-05-06T19:11:22.271010Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 347] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.67s
+[2m2026-05-06T19:16:20.979637Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 348] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.71s
+[2m2026-05-06T19:21:18.880183Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 349] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.90s
+[2m2026-05-06T19:26:17.644642Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 350] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.76s
+[2m2026-05-06T19:31:17.363694Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 351] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 299.72s
+🔄 İlerleme [Gen 352] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 300.79s
+🔄 İlerleme [Gen 353] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.65s
+🔄 İlerleme [Gen 354] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 298.30s
+🔄 İlerleme [Gen 355] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 296.52s
+🔄 İlerleme [Gen 356] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 295.76s
+🔄 İlerleme [Gen 357] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.77s
+🔄 İlerleme [Gen 358] PnL: $   -0.42 | Trades:   119 | Fit:      -3.94 | TP: 0.017 | SL: 0.016 | Risk: %1  | Süre: 297.16s
+🌟 REKOR! [Gen 359] PnL: $   -0.24 | Trades:    65 | Fit:      -3.92 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 297.92s
+🔄 İlerleme [Gen 360] PnL: $   -0.24 | Trades:    65 | Fit:      -3.92 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 297.70s
+🔄 İlerleme [Gen 361] PnL: $   -0.24 | Trades:    65 | Fit:      -3.92 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 297.10s
+🌟 REKOR! [Gen 362] PnL: $   -0.24 | Trades:    65 | Fit:      -3.91 | TP: 0.018 | SL: 0.016 | Risk: %1  | Süre: 298.22s
+🌟 REKOR! [Gen 363] PnL: $   -0.24 | Trades:    65 | Fit:      -3.91 | TP: 0.019 | SL: 0.015 | Risk: %1  | Süre: 298.21s
+🌟 REKOR! [Gen 364] PnL: $   -0.24 | Trades:    65 | Fit:      -3.91 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 296.64s
+🔄 İlerleme [Gen 365] PnL: $   -0.24 | Trades:    65 | Fit:      -3.91 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 297.79s
+🔄 İlerleme [Gen 366] PnL: $   -0.24 | Trades:    65 | Fit:      -3.91 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 297.43s
+🔄 İlerleme [Gen 367] PnL: $   -0.24 | Trades:    65 | Fit:      -3.91 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.49s
+🌟 REKOR! [Gen 368] PnL: $   -0.24 | Trades:    66 | Fit:      -3.89 | TP: 0.018 | SL: 0.015 | Risk: %1  | Süre: 298.59s
+🔄 İlerleme [Gen 369] PnL: $   -0.24 | Trades:    66 | Fit:      -3.89 | TP: 0.018 | SL: 0.015 | Risk: %1  | Süre: 298.73s
+🔄 İlerleme [Gen 370] PnL: $   -0.24 | Trades:    66 | Fit:      -3.89 | TP: 0.018 | SL: 0.015 | Risk: %1  | Süre: 297.75s
+🔄 İlerleme [Gen 371] PnL: $   -0.24 | Trades:    66 | Fit:      -3.89 | TP: 0.018 | SL: 0.015 | Risk: %1  | Süre: 298.29s
+🔄 İlerleme [Gen 372] PnL: $   -0.24 | Trades:    66 | Fit:      -3.89 | TP: 0.018 | SL: 0.015 | Risk: %1  | Süre: 296.67s
+🔄 İlerleme [Gen 373] PnL: $   -0.24 | Trades:    66 | Fit:      -3.89 | TP: 0.018 | SL: 0.015 | Risk: %1  | Süre: 297.62s
+🔄 İlerleme [Gen 374] PnL: $   -0.24 | Trades:    66 | Fit:      -3.89 | TP: 0.018 | SL: 0.015 | Risk: %1  | Süre: 297.99s
+🌟 REKOR! [Gen 375] PnL: $   -0.24 | Trades:    66 | Fit:      -3.87 | TP: 0.018 | SL: 0.016 | Risk: %1  | Süre: 297.57s
+🔄 İlerleme [Gen 376] PnL: $   -0.24 | Trades:    66 | Fit:      -3.87 | TP: 0.018 | SL: 0.016 | Risk: %1  | Süre: 296.38s
+🌟 REKOR! [Gen 377] PnL: $   -0.24 | Trades:    66 | Fit:      -3.86 | TP: 0.018 | SL: 0.016 | Risk: %1  | Süre: 296.48s
+🔄 İlerleme [Gen 378] PnL: $   -0.24 | Trades:    66 | Fit:      -3.86 | TP: 0.018 | SL: 0.016 | Risk: %1  | Süre: 295.05s
+🌟 REKOR! [Gen 379] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 296.41s
+🔄 İlerleme [Gen 380] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 292.38s
+🔄 İlerleme [Gen 381] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 293.45s
+🔄 İlerleme [Gen 382] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 294.03s
+🔄 İlerleme [Gen 383] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 295.52s
+🔄 İlerleme [Gen 384] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 300.28s
+🔄 İlerleme [Gen 385] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 296.29s
+🔄 İlerleme [Gen 386] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 296.99s
+🔄 İlerleme [Gen 387] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 295.31s
+🔄 İlerleme [Gen 388] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 295.96s
+🔄 İlerleme [Gen 389] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 295.24s
+[2m2026-05-06T22:44:20.359332Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 390] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 295.58s
+[2m2026-05-06T22:49:17.574222Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 391] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 297.21s
+[2m2026-05-06T22:54:15.963884Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 392] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.39s
+[2m2026-05-06T22:59:13.187438Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 393] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 297.22s
+[2m2026-05-06T23:04:10.164980Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 394] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 296.98s
+[2m2026-05-06T23:09:06.816935Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 395] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 296.65s
+🔄 İlerleme [Gen 396] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 301.60s
+🔄 İlerleme [Gen 397] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 296.39s
+🔄 İlerleme [Gen 398] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 295.91s
+🔄 İlerleme [Gen 399] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 297.03s
+🔄 İlerleme [Gen 400] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 297.85s
+🔄 İlerleme [Gen 401] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 297.70s
+🔄 İlerleme [Gen 402] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.35s
+🔄 İlerleme [Gen 403] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.87s
+🔄 İlerleme [Gen 404] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.95s
+🔄 İlerleme [Gen 405] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 297.51s
+[2m2026-05-07T00:03:45.786515Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 406] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.80s
+[2m2026-05-07T00:08:47.174829Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 407] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 301.39s
+[2m2026-05-07T00:13:46.899391Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 408] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.72s
+[2m2026-05-07T00:18:46.651378Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 409] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.75s
+[2m2026-05-07T00:23:46.012353Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 410] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.36s
+[2m2026-05-07T00:28:46.834716Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 411] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 300.82s
+🔄 İlerleme [Gen 412] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 300.64s
+🔄 İlerleme [Gen 413] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 297.35s
+🔄 İlerleme [Gen 414] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.00s
+🔄 İlerleme [Gen 415] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 297.72s
+🔄 İlerleme [Gen 416] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.20s
+🔄 İlerleme [Gen 417] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 301.65s
+🔄 İlerleme [Gen 418] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.69s
+🔄 İlerleme [Gen 419] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.35s
+🔄 İlerleme [Gen 420] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.53s
+🔄 İlerleme [Gen 421] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.52s
+[2m2026-05-07T01:23:34.270315Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 422] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.78s
+[2m2026-05-07T01:28:35.126215Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 423] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 300.86s
+[2m2026-05-07T01:33:35.705689Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 424] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 300.58s
+[2m2026-05-07T01:38:35.036070Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 425] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.33s
+[2m2026-05-07T01:43:34.512309Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 426] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.48s
+[2m2026-05-07T01:48:34.309731Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 427] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.80s
+🔄 İlerleme [Gen 428] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 301.52s
+🔄 İlerleme [Gen 429] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.79s
+🔄 İlerleme [Gen 430] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.86s
+🔄 İlerleme [Gen 431] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.12s
+🔄 İlerleme [Gen 432] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.47s
+🔄 İlerleme [Gen 433] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.90s
+🔄 İlerleme [Gen 434] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.17s
+🔄 İlerleme [Gen 435] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.99s
+🔄 İlerleme [Gen 436] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 302.22s
+🔄 İlerleme [Gen 437] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.70s
+[2m2026-05-07T02:43:32.813928Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 438] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 300.77s
+[2m2026-05-07T02:48:34.975448Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 439] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 302.16s
+[2m2026-05-07T02:53:35.609797Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 440] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 300.63s
+[2m2026-05-07T02:58:37.392511Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 441] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 301.78s
+[2m2026-05-07T03:03:38.308183Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 442] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 300.92s
+[2m2026-05-07T03:08:40.361709Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 443] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 302.05s
+🔄 İlerleme [Gen 444] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 303.13s
+🔄 İlerleme [Gen 445] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.82s
+🔄 İlerleme [Gen 446] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.28s
+🔄 İlerleme [Gen 447] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.88s
+🔄 İlerleme [Gen 448] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 300.15s
+🔄 İlerleme [Gen 449] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.86s
+🔄 İlerleme [Gen 450] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 300.10s
+🔄 İlerleme [Gen 451] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 301.08s
+🔄 İlerleme [Gen 452] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 300.92s
+🔄 İlerleme [Gen 453] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.44s
+[2m2026-05-07T04:03:42.016524Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 454] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.00s
+[2m2026-05-07T04:08:43.042188Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 455] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 301.03s
+[2m2026-05-07T04:13:44.176408Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 456] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 301.13s
+[2m2026-05-07T04:18:51.238692Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 457] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 307.06s
+[2m2026-05-07T04:23:53.653039Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 458] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 302.41s
+[2m2026-05-07T04:28:53.815551Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 459] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 300.16s
+🔄 İlerleme [Gen 460] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 301.44s
+🔄 İlerleme [Gen 461] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.64s
+🔄 İlerleme [Gen 462] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.44s
+🔄 İlerleme [Gen 463] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.68s
+🔄 İlerleme [Gen 464] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.66s
+🔄 İlerleme [Gen 465] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.98s
+🔄 İlerleme [Gen 466] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.98s
+🔄 İlerleme [Gen 467] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.89s
+🔄 İlerleme [Gen 468] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.03s
+🔄 İlerleme [Gen 469] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.44s
+[2m2026-05-07T05:23:45.782157Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 470] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.78s
+[2m2026-05-07T05:28:45.689430Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 471] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.91s
+[2m2026-05-07T05:33:46.472614Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 472] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 300.78s
+[2m2026-05-07T05:38:46.279505Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 473] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.81s
+[2m2026-05-07T05:43:45.980155Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 474] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.70s
+[2m2026-05-07T05:48:44.610971Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 475] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.63s
+🔄 İlerleme [Gen 476] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 302.72s
+🔄 İlerleme [Gen 477] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.93s
+🔄 İlerleme [Gen 478] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.93s
+🔄 İlerleme [Gen 479] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.55s
+🔄 İlerleme [Gen 480] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.17s
+🔄 İlerleme [Gen 481] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.82s
+🔄 İlerleme [Gen 482] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 297.91s
+🔄 İlerleme [Gen 483] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.63s
+🔄 İlerleme [Gen 484] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.95s
+🔄 İlerleme [Gen 485] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.05s
+[2m2026-05-07T06:43:36.831164Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 486] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.56s
+[2m2026-05-07T06:48:36.228465Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 487] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.40s
+[2m2026-05-07T06:53:35.426850Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 488] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.20s
+[2m2026-05-07T06:58:34.597728Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 489] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.17s
+[2m2026-05-07T07:03:33.292643Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 490] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.69s
+[2m2026-05-07T07:08:33.035686Z[0m [33m WARN[0m [2msentinel_optimizer[0m[2m:[0m 🌋 [CATACLYSM] Stagnation! Boosting Diversity.
+🔄 İlerleme [Gen 491] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 299.74s
+🔄 İlerleme [Gen 492] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 300.69s
+🔄 İlerleme [Gen 493] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 296.99s
+🔄 İlerleme [Gen 494] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 297.59s
+🔄 İlerleme [Gen 495] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.47s
+🔄 İlerleme [Gen 496] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.56s
+🔄 İlerleme [Gen 497] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 300.36s
+🔄 İlerleme [Gen 498] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 297.77s
+🔄 İlerleme [Gen 499] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 297.82s
+🔄 İlerleme [Gen 500] PnL: $   -0.24 | Trades:    67 | Fit:      -3.82 | TP: 0.018 | SL: 0.017 | Risk: %1  | Süre: 298.28s
