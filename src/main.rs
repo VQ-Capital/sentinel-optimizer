@@ -12,7 +12,7 @@ use audit::AuditEngine;
 use simulator::{run_simulation, HistoricalTick};
 
 #[derive(Parser, Debug)]
-#[command(author, version, about = "VQ-Capital V14.3 Alpha Strike", long_about = None)]
+#[command(author, version, about = "VQ-Capital V14.4 Alpha Strike", long_about = None)]
 struct Args {
     #[arg(
         short,
@@ -41,10 +41,13 @@ pub struct Genome {
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
-    info!("🧬 VQ-CAPITAL V14.3 ALPHA-STRIKE ENGINE BAŞLATILIYOR...");
+    info!("🧬 VQ-CAPITAL V14.4 ALPHA-STRIKE ENGINE BAŞLATILIYOR...");
 
     let args = Args::parse();
     let audit = AuditEngine::new();
+
+    // 🔥 CERRAHİ: Her çalışmada CSV dosyasını temiz ve standart başlıklarla sıfırdan oluşturur.
+    let _ = audit.initialize_csv();
 
     let mut reader = csv::ReaderBuilder::new()
         .has_headers(true)
@@ -105,8 +108,9 @@ fn main() -> Result<()> {
             }
         }
 
-        let _ = audit.log_generation(gen, gen_best, current_mutation_rate);
-        audit.print_progress(gen, gen_best, is_record, start_time.elapsed().as_secs_f32());
+        let time_sec = start_time.elapsed().as_secs_f32();
+        let _ = audit.log_generation(gen, gen_best, current_mutation_rate, time_sec);
+        audit.print_progress(gen, gen_best, is_record, current_mutation_rate, time_sec);
 
         population = evolve_population(
             &population,
@@ -122,7 +126,6 @@ fn main() -> Result<()> {
 }
 
 fn calculate_fitness(pnl: f64, sharpe: f64, max_dd: f64, trades: usize) -> f64 {
-    // 1. Kamikaze ve Tembellik Cezaları
     if max_dd >= 90.0 {
         return -100_000.0 - (trades as f64);
     }
@@ -137,13 +140,9 @@ fn calculate_fitness(pnl: f64, sharpe: f64, max_dd: f64, trades: usize) -> f64 {
     };
 
     if pnl <= 0.0 {
-        // 🔥 CERRAHİ: Risk İstismarı İptali
-        // Artık toplam zarara değil, "İşlem başına ne kadar az kaybettiğine" bakıyoruz.
-        // Bu sayede algoritma riski kısmak yerine, stratejiyi iyileştirmeye odaklanacak!
         let avg_trade_pnl = pnl / trades as f64;
         (avg_trade_pnl * 1000.0) - (max_dd * 10.0) - overtrading_penalty
     } else {
-        // Kâr bölgesinde (Alpha Strike)
         let dd_mult = if max_dd > 10.0 {
             0.1
         } else if max_dd > 5.0 {
@@ -170,7 +169,7 @@ fn create_random_genome() -> Genome {
     dna.push(rng.gen_range(0.010..0.030)); // 39: TP
     dna.push(rng.gen_range(0.005..0.015)); // 40: SL
     dna.push(rng.gen_range(2000.0..10000.0)); // 41: Cooldown
-    dna.push(rng.gen_range(0.01..0.05)); // 🔥 42: Risk (%1-%5 kilitlendi)
+    dna.push(rng.gen_range(0.01..0.05)); // 42: Risk
 
     Genome {
         weights: dna,
@@ -224,10 +223,9 @@ fn evolve_population(
                     gene += rng.gen_range(-500.0..500.0);
                 } else {
                     gene += rng.gen_range(-0.01..0.01);
-                } // Risk Mutasyonu
+                }
             }
 
-            // Final Clamping
             if i == 39 {
                 gene = gene.clamp(0.006, 0.05);
             } else if i == 40 {
@@ -236,9 +234,7 @@ fn evolve_population(
                 gene = gene.clamp(1000.0, 30000.0);
             } else if i == 42 {
                 gene = gene.clamp(0.01, 0.05);
-            }
-            // 🔥 Risk Clamping (1%-5%)
-            else if (36..39).contains(&i) {
+            } else if (36..39).contains(&i) {
                 gene = gene.clamp(-0.5, 0.5);
             } else {
                 gene = gene.clamp(-3.0, 3.0);

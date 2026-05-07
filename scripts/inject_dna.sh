@@ -1,16 +1,16 @@
 # ========== DOSYA: sentinel-optimizer/scripts/inject_dna.sh ==========
-#!/bin/bash
+#!/bin/sh
 set -e
 
 echo "🧬 [MLOps] Alpha DNA Enjeksiyon Protokolü Başlatıldı..."
 
-# JQ kontrolü ve otomatik kurulum (Ubuntu/Debian)
-if ! command -v jq &> /dev/null; then
+# JQ kontrolü ve otomatik kurulum (Ubuntu/Debian için güvenli)
+if ! command -v jq > /dev/null 2>&1; then
     echo "⚙️ 'jq' bulunamadı, sisteme otomatik olarak kuruluyor..."
     sudo apt-get update -y && sudo apt-get install -y jq
 fi
 
-# Betiğin nerede olduğunu güvenli bir şekilde bulur (POSIX uyumlu)
+# Betiğin nerede olduğunu güvenli ve evrensel bir şekilde bulur (POSIX uyumlu)
 DIR="$(cd "$(dirname "$0")" && pwd)"
 ORG_ROOT="$DIR/../.."
 
