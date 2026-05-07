@@ -62,11 +62,10 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
         cooldown_ms: dna[41] as i64,
         min_hold_time_ms: 1000,
         max_hold_time_ms: 3_600_000,
-        // 🔥 CERRAHİ: Risk katı şekilde %1 ile %5 arasına kilitlendi. Kamikaze yasaklandı.
         base_risk_pct: (dna[42] as f64).clamp(0.01, 0.05),
         base_leverage: 1.0,
-        take_profit_pct: (dna[39] as f64).clamp(0.006, 0.04),
-        stop_loss_pct: (dna[40] as f64).clamp(0.004, 0.02),
+        take_profit_pct: (dna[39] as f64).clamp(0.006, 0.05),
+        stop_loss_pct: (dna[40] as f64).clamp(0.004, 0.03),
     };
 
     let mut risk_engine = RiskEngine::new(risk_config.clone());
@@ -84,8 +83,12 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
     let mut peak_equity = balance;
     let mut returns = Vec::new();
     let mut trade_count = 0;
-    let mut last_signal_ms = 0;
+    // last_signal_ms kaldırıldı. Cooldown'ı Core RiskEngine yönetecek.
     let mut current_prices = HashMap::new();
+
+    // sentinel-execution ile BİREBİR aynı simülasyon dinamikleri
+    let base_slippage_pct = 0.00005; // 0.5 bps
+    let fee_rate = 0.0002; // 2 bps
 
     for tick in ticks {
         let sec = tick.timestamp / 1000;
@@ -171,8 +174,8 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
                 let mut features = [0.0f32; 12];
                 features[0] = z_scores[0].update(velocity, 10000.0) as f32;
                 features[1] = z_scores[1].update(trade_imb, 1.0) as f32;
-                features[2] = z_scores[2].update(0.0, 1.0) as f32;
-                features[3] = z_scores[3].update(0.0, 1.0) as f32;
+                features[2] = z_scores[2].update(0.0, 1.0) as f32; // Sentiment (Offline simüle edilmez)
+                features[3] = z_scores[3].update(0.0, 1.0) as f32; // Urgency (Offline simüle edilmez)
                 features[4] = z_scores[4].update(rsi, 1.0) as f32;
                 features[5] = z_scores[5].update(volatility, 10000.0) as f32;
                 features[6] = z_scores[6].update(taker_ratio, 1.0) as f32;
@@ -182,45 +185,46 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
                 features[10] = z_scores[10].update(time_sin, 1.0) as f32;
                 features[11] = z_scores[11].update(price_to_mean, 1000.0) as f32;
 
-                if tick.timestamp - last_signal_ms >= risk_config.cooldown_ms {
-                    if let Ok((sig_type, conf)) = model.predict(&features) {
-                        if sig_type != SignalType::Hold && conf > 0.42 {
-                            last_signal_ms = tick.timestamp;
-                            let signal = TradeSignal {
-                                symbol: symbol.to_string(),
-                                signal_type: sig_type,
-                                confidence_score: conf,
-                                recommended_leverage: 1.0,
-                                timestamp: tick.timestamp,
+                if let Ok((sig_type, conf)) = model.predict(&features) {
+                    if sig_type != SignalType::Hold && conf > 0.42 {
+                        let signal = TradeSignal {
+                            symbol: symbol.to_string(),
+                            signal_type: sig_type,
+                            confidence_score: conf,
+                            recommended_leverage: 1.0,
+                            timestamp: tick.timestamp,
+                        };
+
+                        // Core Risk Engine Cooldown ve Margin kontrolünü kendisi yapar!
+                        if let Ok(qty) = risk_engine.evaluate_signal(
+                            &signal,
+                            tick.price,
+                            balance,
+                            tick.timestamp,
+                        ) {
+                            let side = if sig_type == SignalType::Buy
+                                || sig_type == SignalType::StrongBuy
+                            {
+                                "BUY"
+                            } else {
+                                "SELL"
                             };
 
-                            if let Ok(qty) = risk_engine.evaluate_signal(
-                                &signal,
-                                tick.price,
-                                balance,
+                            // 🦅 Slippage %0.005 ile sentinel-execution'a eşitlendi!
+                            let exec_price = if side == "BUY" {
+                                tick.price * (1.0 + base_slippage_pct)
+                            } else {
+                                tick.price * (1.0 - base_slippage_pct)
+                            };
+
+                            risk_engine.process_execution(
+                                symbol,
+                                side,
+                                exec_price,
+                                qty,
                                 tick.timestamp,
-                            ) {
-                                let side = if sig_type == SignalType::Buy
-                                    || sig_type == SignalType::StrongBuy
-                                {
-                                    "BUY"
-                                } else {
-                                    "SELL"
-                                };
-                                let exec_price = if side == "BUY" {
-                                    tick.price * 1.0002
-                                } else {
-                                    tick.price * 0.9998
-                                };
-                                risk_engine.process_execution(
-                                    symbol,
-                                    side,
-                                    exec_price,
-                                    qty,
-                                    tick.timestamp,
-                                );
-                                balance -= (exec_price * qty) * 0.0002;
-                            }
+                            );
+                            balance -= (exec_price * qty) * fee_rate; // Sadece komisyon düşer, PnL pozisyon kapanınca.
                         }
                     }
                 }
@@ -243,16 +247,18 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
         let close_orders = risk_engine.check_tp_sl(&current_prices, tick.timestamp);
         for (sym, side, qty, price) in close_orders {
             let exec_price = if side == "BUY" {
-                price * 1.0002
+                price * (1.0 + base_slippage_pct)
             } else {
-                price * 0.9998
+                price * (1.0 - base_slippage_pct)
             };
             let realized =
                 risk_engine.process_execution(&sym, side, exec_price, qty, tick.timestamp);
-            let net_pnl = realized - ((exec_price * qty) * 0.0002);
+            let net_pnl = realized - ((exec_price * qty) * fee_rate);
+
             balance += net_pnl;
             returns.push(net_pnl / 1000.0);
             trade_count += 1;
+
             if balance > peak_equity {
                 peak_equity = balance;
             }
@@ -264,11 +270,10 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
     } else {
         0.0
     };
-    let sharpe = calculate_sharpe(&returns);
 
     SimulationResult {
         pnl: balance - 1000.0,
-        sharpe,
+        sharpe: calculate_sharpe(&returns),
         max_dd,
         trades: trade_count,
     }
