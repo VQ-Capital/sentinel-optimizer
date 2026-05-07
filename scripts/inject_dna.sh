@@ -4,17 +4,19 @@ set -e
 
 echo "🧬 [MLOps] Alpha DNA Enjeksiyon Protokolü Başlatıldı..."
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-ORG_ROOT="$SCRIPT_DIR/../.."
+# JQ kontrolü ve otomatik kurulum (Ubuntu/Debian)
+if ! command -v jq &> /dev/null; then
+    echo "⚙️ 'jq' bulunamadı, sisteme otomatik olarak kuruluyor..."
+    sudo apt-get update -y && sudo apt-get install -y jq
+fi
+
+# Betiğin nerede olduğunu güvenli bir şekilde bulur (POSIX uyumlu)
+DIR="$(cd "$(dirname "$0")" && pwd)"
+ORG_ROOT="$DIR/../.."
 
 HOF_FILE="$ORG_ROOT/sentinel-optimizer/hall_of_fame.json"
 WEIGHTS_FILE="$ORG_ROOT/sentinel-inference/src/weights.rs"
 ENV_FILE="$ORG_ROOT/sentinel-infra/.env"
-
-if ! command -v jq &> /dev/null; then
-    echo "🚨 'jq' kurulu değil. Lütfen 'sudo apt-get install jq' çalıştırın."
-    exit 1
-fi
 
 if [ ! -f "$HOF_FILE" ]; then
     echo "🚨 hall_of_fame.json bulunamadı! Aranan dizin: $HOF_FILE"
@@ -25,7 +27,7 @@ echo "🔍 En iyi Genom analiz ediliyor..."
 FITNESS=$(jq -r '.[0].fitness' "$HOF_FILE")
 PNL=$(jq -r '.[0].pnl' "$HOF_FILE")
 
-# Risk Parametrelerini (Genomun son 4 geni) çıkartıyoruz
+# Risk Parametrelerini çekiyoruz (Yüksek Hassasiyet)
 TP=$(jq -r '.[0].weights[39]' "$HOF_FILE")
 SL=$(jq -r '.[0].weights[40]' "$HOF_FILE")
 COOLDOWN=$(jq -r '.[0].weights[41] | round' "$HOF_FILE")
@@ -57,7 +59,7 @@ if [ -f "$ENV_FILE" ]; then
     sed -i "s/^STOP_LOSS=.*/STOP_LOSS=$SL/" "$ENV_FILE"
     sed -i "s/^COOLDOWN_MS=.*/COOLDOWN_MS=$COOLDOWN/" "$ENV_FILE"
     sed -i "s/^RISK_PCT=.*/RISK_PCT=$RISK/" "$ENV_FILE"
-    echo "✅ .env dosyası güncellendi: TP=$TP, SL=$SL, COOLDOWN=$COOLDOWN, RISK=$RISK"
+    echo "✅ .env dosyası güncellendi: TP=$TP | SL=$SL | COOLDOWN=$COOLDOWN | RISK=$RISK"
 else
     echo "⚠️ $ENV_FILE bulunamadı! Lütfen manuel olarak güncelleyin."
 fi

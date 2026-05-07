@@ -35,24 +35,29 @@ impl AuditEngine {
         Ok(())
     }
 
-    /// Her jenerasyonun sonucunu CSV'ye damgalar (Append Mode)
+    /// Her jenerasyonun sonucunu CSV'ye damgalar
     pub fn log_generation(&self, gen: usize, best: &Genome, mutation_rate: f32) -> Result<()> {
-        let file_exists = std::path::Path::new(&self.log_path).exists();
+        // 🔥 CERRAHİ: Gen 1 ise dosyayı sıfırla (truncate), değilse sonuna ekle (append).
+        // Böylece kullanıcı asla manuel olarak CSV silmek zorunda kalmaz.
+        let is_first_gen = gen == 1;
         let mut file = OpenOptions::new()
             .create(true)
-            .append(true)
+            .write(true)
+            .truncate(is_first_gen)
+            .append(!is_first_gen)
             .open(&self.log_path)?;
 
-        if !file_exists || fs::metadata(&self.log_path)?.len() == 0 {
+        if is_first_gen {
             writeln!(
                 file,
                 "Timestamp,Gen,PnL,Sharpe,MaxDD,Trades,Fit,MutRate,TP,SL,Risk,Cooldown"
             )?;
         }
 
+        // 🔥 HFT HASSASİYETİ: Tüm metrikler 6 ondalığa (6 decimals) kilitlendi. JSON ile BİREBİR aynı olacak.
         writeln!(
             file,
-            "{},{},{:.2},{:.2},{:.2},{},{:.2},{:.2},{:.4},{:.4},{:.2},{:.0}",
+            "{},{},{:.6},{:.6},{:.6},{},{:.6},{:.2},{:.6},{:.6},{:.6},{:.0}",
             Utc::now().to_rfc3339(),
             gen,
             best.pnl,
@@ -72,12 +77,13 @@ impl AuditEngine {
     /// Konsola kurumsal formatta ilerleme basar
     pub fn print_progress(&self, gen: usize, best: &Genome, is_record: bool, duration: f32) {
         let prefix = if is_record {
-            "🌟 REKOR!"
+            "🌟 REKOR!  "
         } else {
             "🔄 İlerleme"
         };
+        // 🔥 HFT HASSASİYETİ: Ekrana basılan değerler de 6 ondalığa çekildi. CSV ile BİREBİR uyumlu.
         println!(
-            "{} [Gen {}] PnL: ${:>8.2} | Trades: {:>5} | Fit: {:>10.2} | TP: {:.3} | SL: {:.3} | Risk: %{:<2.0} | Süre: {:.2}s",
+            "{} [Gen {:>3}] PnL: ${:>9.4} | Trades: {:>4} | Fit: {:>10.4} | TP: {:.6} | SL: {:.6} | Risk: {:.6} | Süre: {:.2}s",
             prefix,
             gen,
             best.pnl,
@@ -85,7 +91,7 @@ impl AuditEngine {
             best.fitness,
             best.weights[39],
             best.weights[40],
-            best.weights[42] * 100.0,
+            best.weights[42],
             duration
         );
     }
