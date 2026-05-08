@@ -18,13 +18,15 @@ impl AuditEngine {
         }
     }
 
-    /// 🔥 CERRAHİ: Her optimizer başladığında CSV'yi sıfırlar ve yeni başlıkları yazar.
+    /// 🔥 CERRAHİ: Artık dosya varsa üzerine YAZMAZ (Geçmişi korur).
     pub fn initialize_csv(&self) -> Result<()> {
-        let mut file = fs::File::create(&self.log_path)?;
-        writeln!(
-            file,
-            "Timestamp,Gen,PnL,Sharpe,MaxDD,Trades,Fit,MutRate,TP,SL,Risk,Cooldown,TimeSec"
-        )?;
+        if !std::path::Path::new(&self.log_path).exists() {
+            let mut file = fs::File::create(&self.log_path)?;
+            writeln!(
+                file,
+                "Timestamp,Gen,PnL,Sharpe,MaxDD,Trades,Fit,MutRate,TP,SL,Risk,Cooldown,TimeSec"
+            )?;
+        }
         Ok(())
     }
 
@@ -53,7 +55,7 @@ impl AuditEngine {
     ) -> Result<()> {
         let mut file = OpenOptions::new().append(true).open(&self.log_path)?;
 
-        // 🔥 HFT HASSASİYETİ: Tüm metrikler 6 ondalığa (6 decimals) kilitlendi.
+        // 🔥 HFT HASSASİYETİ: Tüm metrikler 6 ondalığa kilitlendi.
         writeln!(
             file,
             "{},{},{:.6},{:.6},{:.6},{},{:.6},{:.2},{:.6},{:.6},{:.6},{:.0},{:.2}",
@@ -74,7 +76,7 @@ impl AuditEngine {
         Ok(())
     }
 
-    /// Konsola kurumsal formatta ilerleme basar (CSV formatıyla BİREBİR AYNI)
+    /// Konsola kurumsal formatta ilerleme basar
     pub fn print_progress(
         &self,
         gen: usize,
