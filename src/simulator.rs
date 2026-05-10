@@ -33,7 +33,8 @@ pub struct SimulationResult {
     pub sharpe: f64,
     pub max_dd: f64,
     pub trades: usize,
-    pub win_rate: f64, // 🔥 CERRAHİ: Win Rate eklendi
+    pub win_rate: f64,
+    pub profit_factor: f64, // 🔥 YENİ: Dış Denetçiler İçin Kâr Katsayısı
 }
 
 #[derive(Clone, Default)]
@@ -84,7 +85,9 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
     let mut peak_equity = balance;
     let mut returns = Vec::new();
     let mut trade_count = 0;
-    let mut winning_trades = 0; // 🔥 CERRAHİ: Win Rate takibi
+    let mut winning_trades = 0;
+    let mut gross_profit = 0.0; // 🔥 YENİ
+    let mut gross_loss = 0.0; // 🔥 YENİ
     let mut current_prices = HashMap::new();
 
     let base_slippage_pct = 0.00005;
@@ -258,7 +261,10 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
             trade_count += 1;
 
             if net_pnl > 0.0 {
-                winning_trades += 1; // 🔥 CERRAHİ: Win Rate hesaplama verisi
+                winning_trades += 1;
+                gross_profit += net_pnl;
+            } else {
+                gross_loss += net_pnl.abs();
             }
 
             if balance > peak_equity {
@@ -279,12 +285,21 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
         0.0
     };
 
+    let profit_factor = if gross_loss > 0.0 {
+        gross_profit / gross_loss
+    } else if gross_profit > 0.0 {
+        99.9 // Zero kayıp, full kâr durumu
+    } else {
+        0.0
+    };
+
     SimulationResult {
         pnl: balance - 1000.0,
         sharpe: calculate_sharpe(&returns),
         max_dd,
         trades: trade_count,
         win_rate,
+        profit_factor,
     }
 }
 
@@ -308,5 +323,6 @@ fn dead_result() -> SimulationResult {
         max_dd: 100.0,
         trades: 0,
         win_rate: 0.0,
+        profit_factor: 0.0,
     }
 }
