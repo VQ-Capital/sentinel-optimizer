@@ -12,7 +12,7 @@ use audit::AuditEngine;
 use simulator::{run_simulation, HistoricalTick};
 
 #[derive(Parser, Debug)]
-#[command(author, version, about = "VQ-Capital V14.8 Alpha Strike", long_about = None)]
+#[command(author, version, about = "VQ-Capital V15.0 Extinction Engine", long_about = None)]
 struct Args {
     #[arg(
         short,
@@ -45,14 +45,14 @@ pub struct Genome {
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
-    info!("🧬 VQ-CAPITAL V14.8 ALPHA-STRIKE ENGINE BAŞLATILIYOR...");
+    info!("🧬 VQ-CAPITAL V15.0 EXTINCTION ENGINE BAŞLATILIYOR...");
 
     let args = Args::parse();
     let audit = AuditEngine::new();
 
     let _ = audit.initialize_csv();
 
-    // 🔥 SENİN FİKRİN: DIŞ DENETÇİLER İÇİN DENEY KONFİGÜRASYONU LOGLAMASI
+    // 🔬 DIŞ DENETÇİLER İÇİN ŞEFFAF DENEY RAPORU
     println!("\n=======================================================");
     println!("🧪 EXPERIMENT CONFIGURATION (DENEY PARAMETRELERİ)");
     println!("=======================================================");
@@ -60,7 +60,7 @@ fn main() -> Result<()> {
     println!("📂 Dataset Path  : {}", args.csv_file_path);
     println!("🧬 Generations   : {}", args.generations);
     println!("👥 Population    : {}", args.population);
-    println!("⚙️ Fitness Rule  : Strict Continuous Function (PF & WinRate Penalty)");
+    println!("⚙️ Fitness Rule  : Anti-Cowardice Force Trade & Extinction");
     println!("=======================================================\n");
 
     let mut reader = csv::ReaderBuilder::new()
@@ -91,6 +91,7 @@ fn main() -> Result<()> {
     for gen in 1..=args.generations {
         let start_time = std::time::Instant::now();
 
+        // 🚀 QUANTUM HIZI: Tüm CPU'lar simülasyonu aynı anda koşar
         population.par_iter_mut().for_each(|genome| {
             let result = run_simulation(&genome.weights, &ticks, &args.symbol);
             genome.pnl = result.pnl;
@@ -100,6 +101,7 @@ fn main() -> Result<()> {
             genome.win_rate = result.win_rate;
             genome.profit_factor = result.profit_factor;
 
+            // 🔥 Yeni Acımasız Fitness Fonksiyonu
             genome.fitness = calculate_fitness(
                 result.pnl,
                 result.sharpe,
@@ -111,6 +113,7 @@ fn main() -> Result<()> {
             genome.generation = gen;
         });
 
+        // Fitness'a göre sırala (Büyükten Küçüğe)
         population.sort_by(|a, b| {
             b.fitness
                 .partial_cmp(&a.fitness)
@@ -125,7 +128,7 @@ fn main() -> Result<()> {
         if gen_best.fitness > best_all_time.fitness || is_first_run_of_loaded {
             best_all_time = gen_best.clone();
             stagnation_counter = 0;
-            current_mutation_rate = 0.05;
+            current_mutation_rate = 0.05; // Mutasyon normale döner
             is_record = true;
 
             if !is_first_run_of_loaded {
@@ -133,33 +136,36 @@ fn main() -> Result<()> {
             }
         } else {
             stagnation_counter += 1;
-            if stagnation_counter > 15 {
-                warn!("🌋 [CATACLYSM] Stagnation! Boosting Diversity.");
-                current_mutation_rate = 0.35;
+            if stagnation_counter > 10 {
+                // 🔥 CERRAHİ: Durgunluk süresi 15'ten 10'a çekildi. Hızlı müdahale!
+                warn!("🌋 [MASS EXTINCTION] Stagnation Detected! %80 of population will be terminated.");
+                current_mutation_rate = 0.40; // Çok radikal mutasyon
             } else {
-                current_mutation_rate = (current_mutation_rate + 0.02).min(0.20);
+                current_mutation_rate = (current_mutation_rate + 0.03).min(0.25);
             }
         }
 
         let time_sec = start_time.elapsed().as_secs_f32();
 
-        // 🔥 CERRAHİ: Audit modülü artık tek seferde hem ekrana hem CSV'ye basıyor.
+        // 📝 TEK DOĞRULUK KAYNAĞI İLE LOGLAMA (AuditEngine)
         let _ = audit.log_generation(gen, gen_best, current_mutation_rate, time_sec, is_record);
 
+        // Evrim ve Doğum
         population = evolve_population(
             &population,
             args.population,
             current_mutation_rate,
-            stagnation_counter > 15,
+            stagnation_counter > 10, // 🌋 Cataclysm Tetikleyicisi
         );
-        if stagnation_counter > 15 {
-            stagnation_counter = 0;
+
+        if stagnation_counter > 10 {
+            stagnation_counter = 0; // Katliam sonrası sayacı sıfırla
         }
     }
     Ok(())
 }
 
-// 🛡️ REWARD HACKING KORUMASI: SÜREKLİ FONKSİYON (Early Return Yasak)
+// 🛡️ REWARD HACKING KORUMASI: THE VALLEY OF DEATH
 fn calculate_fitness(
     pnl: f64,
     sharpe: f64,
@@ -168,43 +174,53 @@ fn calculate_fitness(
     win_rate: f64,
     profit_factor: f64,
 ) -> f64 {
+    // 1. KESİN İDAM SEBEPLERİ (Algoritmanın saklanmasını engeller)
+    if trades == 0 {
+        return -1_000_000.0; // İşlem yapmamak en büyük suçtur
+    }
+    if max_dd >= 80.0 {
+        return -500_000.0; // Kasayı patlatmak affedilemez
+    }
+
     let mut fitness = 0.0;
 
-    // 1. Ana Hedef: Kâr (PnL)
-    fitness += pnl * 100.0;
-
-    // 2. Risk Cezası
-    fitness -= max_dd * 1000.0;
-    if max_dd >= 50.0 {
-        fitness -= 50_000.0; // Ağır ölüm cezası
-    }
-
-    // 3. İşlem Hacmi (Tembellik veya Hiperaktivite Cezası)
+    // 2. AKTİVİTE BARAJI (İlk 50 İşlem Vadisi)
     if trades < 50 {
-        fitness -= (50 - trades) as f64 * 500.0; // Tembellik cezası (49 işlem yapıp kaçamaz!)
-    } else if trades > 2000 {
-        fitness -= (trades - 2000) as f64 * 10.0; // Hiperaktif komisyon israfı cezası
+        // AI 49 işlem yapıp kaçamaz. 50'ye ulaşana kadar sürekli teşvik edilir.
+        // Taban ceza -100.000'dir. Her işlem +1000 puan verir.
+        // 1 işlem: -99.000 | 49 işlem: -51.000. Kazanmak için 50'yi geçmek ZORUNDA.
+        fitness += -100_000.0 + (trades as f64 * 1000.0);
+    } else if trades > 3000 {
+        // Overtrading (Komisyon İsrafı) Cezası
+        fitness -= (trades - 3000) as f64 * 10.0;
     }
 
-    // 4. Kazanma Oranı (Win Rate) Cezası
-    if trades > 0 && win_rate < 40.0 {
-        fitness -= (40.0 - win_rate) * 500.0;
-    }
+    // 3. KÂR VE ZARAR ÇARPANLARI
+    if pnl > 0.0 {
+        // Model kâra geçtiyse devasa bir tırmanış başlar
+        fitness += pnl * 1000.0;
+        fitness += sharpe * 5000.0;
 
-    // 5. Profit Factor (Sistemin Gerçek Sağlığı)
-    if trades > 0 {
-        if profit_factor >= 1.0 {
-            fitness += profit_factor * 2000.0; // Kârlı sistemlere büyük ödül
-        } else {
-            fitness -= (1.0 - profit_factor) * 5000.0; // Kumara ağır ceza
+        if profit_factor > 1.2 {
+            fitness += profit_factor * 10000.0;
         }
     } else {
-        fitness -= 20000.0; // Hiç işlem yapmayana net ceza
+        // Zarar ediyorsa PnL zaten negatif olduğu için puanı düşer
+        // Çarpan bilerek 100 yapıldı ki, AI "zarar ediyorum bari hiç işlem yapmayayım" tuzağına düşmesin.
+        // İşlem yapmamanın cezası (-1.000.000) her zaman zarar etmekten daha büyük olmalı!
+        fitness += pnl * 100.0;
     }
 
-    // 6. Sharpe Çarpanı (Sadece Kârdayken anlamlıdır)
-    if pnl > 0.0 && sharpe > 0.0 {
-        fitness += sharpe * 500.0;
+    // 4. MAX DD CEZASI (Her zaman geçerli)
+    fitness -= max_dd * 500.0;
+
+    // 5. KAZANMA ORANI DİNAMİKLERİ
+    if trades >= 10 {
+        if win_rate < 35.0 {
+            fitness -= (35.0 - win_rate) * 200.0;
+        } else if win_rate > 50.0 {
+            fitness += (win_rate - 50.0) * 500.0;
+        }
     }
 
     fitness
@@ -214,17 +230,20 @@ fn create_random_genome() -> Genome {
     let mut rng = rand::thread_rng();
     let mut dna: Vec<f32> = Vec::with_capacity(43);
 
+    // İlk 36 gen PCA ve Feature ağırlıklarıdır
     for _ in 0..36 {
-        dna.push(rng.gen_range(-1.0..1.0));
+        dna.push(rng.gen_range(-1.5..1.5)); // 🔥 Genlik artırıldı
     }
 
-    dna.push(rng.gen_range(0.2..0.8));
-    dna.push(rng.gen_range(-0.1..0.1));
-    dna.push(rng.gen_range(-0.1..0.1));
+    // 🔥 CERRAHİ: Hold bias (Bekleme) düşürüldü, Buy/Sell sınırları genişletildi.
+    // Amaç algoritmayı tetik çekmeye (Trigger Happy) zorlamak.
+    dna.push(rng.gen_range(-0.2..0.4)); // Hold Bias
+    dna.push(rng.gen_range(-0.5..0.5)); // Buy Bias
+    dna.push(rng.gen_range(-0.5..0.5)); // Sell Bias
 
-    dna.push(rng.gen_range(0.005..0.040)); // TP: Genişletildi
-    dna.push(rng.gen_range(0.003..0.020)); // SL: Genişletildi
-    dna.push(rng.gen_range(1000.0..15000.0)); // Cooldown
+    dna.push(rng.gen_range(0.005..0.040)); // TP (0.5% - 4%)
+    dna.push(rng.gen_range(0.003..0.020)); // SL (0.3% - 2%)
+    dna.push(rng.gen_range(500.0..10000.0)); // Cooldown (Kısaltıldı)
     dna.push(rng.gen_range(0.01..0.05)); // Risk
 
     Genome {
@@ -249,15 +268,23 @@ fn evolve_population(
     let mut new_pop = Vec::with_capacity(total_size);
     let mut rng = rand::thread_rng();
 
+    // 🌋 MASS EXTINCTION (KİTLESEL YOK OLUŞ)
+    // Eğer Cataclysm tetiklendiyse, sadece EN İYİ 1 KİŞİ yaşar. Geri kalan herkes ölür.
     let elite_count = if is_cataclysm {
         1
     } else {
-        (total_size / 20).max(2)
+        (total_size / 20).max(2) // Normalde elitlerin %5'i korunur
     };
     new_pop.extend_from_slice(&current_pop[0..elite_count]);
 
-    let random_injection = if is_cataclysm { total_size / 2 } else { 0 };
+    // Cataclysm durumunda nüfusun %80'i tamamen SIFIRDAN rastgele yaratılır (Random Immigrants)
+    let random_injection = if is_cataclysm {
+        (total_size as f32 * 0.8) as usize
+    } else {
+        (total_size as f32 * 0.1) as usize
+    };
 
+    // Kalan boşluğu Elitlerin çiftleşmesi (Crossover) ile doldur
     while new_pop.len() < total_size - random_injection {
         let p1 = &current_pop[rng.gen_range(0..elite_count * 2)];
         let p2 = &current_pop[rng.gen_range(0..elite_count * 2)];
@@ -272,28 +299,29 @@ fn evolve_population(
 
             if rng.gen_bool(mut_rate as f64) {
                 if i < 36 {
-                    gene += rng.gen_range(-0.2..0.2); // 🔥 Mutasyon genliği artırıldı
+                    gene += rng.gen_range(-0.3..0.3); // 🔥 Agresif Mutasyon
                 } else if (36..39).contains(&i) {
-                    gene += rng.gen_range(-0.05..0.05);
+                    gene += rng.gen_range(-0.1..0.1);
                 } else if i == 39 || i == 40 {
-                    gene += rng.gen_range(-0.001..0.001);
+                    gene += rng.gen_range(-0.002..0.002);
                 } else if i == 41 {
-                    gene += rng.gen_range(-250.0..250.0);
+                    gene += rng.gen_range(-500.0..500.0);
                 } else {
                     gene += rng.gen_range(-0.01..0.01);
                 }
             }
 
+            // Sınır Koruma (Clamp)
             if i == 39 {
                 gene = gene.clamp(0.005, 0.05);
             } else if i == 40 {
                 gene = gene.clamp(0.003, 0.03);
             } else if i == 41 {
-                gene = gene.clamp(1000.0, 30000.0);
+                gene = gene.clamp(500.0, 30000.0);
             } else if i == 42 {
                 gene = gene.clamp(0.01, 0.05);
             } else if (36..39).contains(&i) {
-                gene = gene.clamp(-0.5, 0.5);
+                gene = gene.clamp(-0.8, 0.8);
             } else {
                 gene = gene.clamp(-3.0, 3.0);
             }
@@ -313,8 +341,10 @@ fn evolve_population(
         });
     }
 
+    // Random Yabancıları (Aliens) enjekte et
     while new_pop.len() < total_size {
         new_pop.push(create_random_genome());
     }
+
     new_pop
 }
