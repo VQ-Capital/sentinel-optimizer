@@ -6,32 +6,31 @@ use std::fmt;
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 
-/// Hem CSV hem de Konsol çıktıları için "Tek Doğruluk Kaynağı" (Single Source of Truth)
 pub struct AuditRecord {
     pub timestamp: String,
+    pub status: String, // "RECORD" veya "PROGRESS"
     pub gen: usize,
+    pub fitness: f64,
     pub pnl: f64,
+    pub win_rate: f64,
+    pub profit_factor: f64,
     pub sharpe: f64,
     pub max_drawdown: f64,
     pub trades: usize,
-    pub fitness: f64,
     pub mut_rate: f32,
-    pub tp: f32,       // 🔥 CERRAHİ: f64 -> f32 (Rust Type Safety)
-    pub sl: f32,       // 🔥 CERRAHİ: f64 -> f32 (Rust Type Safety)
-    pub risk: f32,     // 🔥 CERRAHİ: f64 -> f32 (Rust Type Safety)
-    pub cooldown: f32, // 🔥 CERRAHİ: f64 -> f32 (Rust Type Safety)
+    pub tp: f32,
+    pub sl: f32,
+    pub risk: f32,
+    pub cooldown: f32,
     pub time_sec: f32,
-    pub win_rate: f64,
-    pub profit_factor: f64,
-    pub is_record: bool,
+    pub is_record: bool, // Emoji seçimi için dahili kontrol
 }
 
 impl AuditRecord {
-    /// CSV dosyasının en üstündeki başlık satırı
+    /// CSV Başlığı: Artık Status ve Timestamp en başta
     pub const CSV_HEADER: &'static str =
-        "Timestamp,Gen,PnL,Sharpe,MaxDD,Trades,Fit,MutRate,TP,SL,Risk,Cooldown,TimeSec,WinRate,PF";
+        "Timestamp,Status,Gen,Fitness,PnL,WinRate,PF,Sharpe,MaxDD,Trades,MutRate,TP,SL,Risk,Cooldown,TimeSec";
 
-    /// Mevcut Genome ve optimizasyon verilerinden standart bir kayıt oluşturur
     pub fn from_genome(
         gen: usize,
         best: &Genome,
@@ -40,64 +39,80 @@ impl AuditRecord {
         is_record: bool,
     ) -> Self {
         Self {
-            timestamp: Utc::now().to_rfc3339(),
+            // Daha okunabilir bir timestamp (Opsiyonel: RFC3339 yerine daha kısa bir format da seçilebilir)
+            timestamp: Utc::now().format("%Y-%m-%d %H:%M:%S").to_string(),
+            status: if is_record {
+                "RECORD".to_string()
+            } else {
+                "UPDATE".to_string()
+            },
             gen,
+            fitness: best.fitness,
             pnl: best.pnl,
+            win_rate: best.win_rate,
+            profit_factor: best.profit_factor,
             sharpe: best.sharpe,
             max_drawdown: best.max_drawdown,
             trades: best.trades,
-            fitness: best.fitness,
             mut_rate,
-            // Genome içindeki weight indexlerini burada isimlendiriyoruz (Magic Number koruması)
             tp: best.weights[39],
             sl: best.weights[40],
             cooldown: best.weights[41],
             risk: best.weights[42],
             time_sec,
-            win_rate: best.win_rate,
-            profit_factor: best.profit_factor,
             is_record,
         }
     }
 
-    /// Kaydı CSV formatında bir satıra dönüştürür
+    /// CSV Satırı: Konsol ile tam senkronize sıra
     pub fn to_csv_row(&self) -> String {
         format!(
-            "{},{},{:.6},{:.6},{:.6},{},{:.6},{:.2},{:.6},{:.6},{:.6},{:.0},{:.2},{:.2},{:.4}",
+            "{},{},{},{:.2},{:.4},{:.2},{:.2},{:.2},{:.4},{},{:.2},{:.6},{:.6},{:.6},{:.0},{:.2}",
             self.timestamp,
+            self.status,
             self.gen,
+            self.fitness,
             self.pnl,
+            self.win_rate,
+            self.profit_factor,
             self.sharpe,
             self.max_drawdown,
             self.trades,
-            self.fitness,
             self.mut_rate,
             self.tp,
             self.sl,
             self.risk,
             self.cooldown,
-            self.time_sec,
-            self.win_rate,
-            self.profit_factor
+            self.time_sec
         )
     }
 }
 
-/// Konsol çıktısı için formatlama kuralı (println! için)
+/// Konsol Çıktısı: CSV ile aynı veri sırası, sadece görsel süslemeler (emoji) eklenmiş hali
 impl fmt::Display for AuditRecord {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let prefix = if self.is_record {
-            "🌟 REKOR!  "
-        } else {
-            "🔄 İlerleme"
-        };
+        let emoji = if self.is_record { "🌟" } else { "🔄" };
 
         write!(
             f,
-            "{}[Gen {:>3}] PnL: {:>8.4} | Win: {:>5.2}% | PF: {:>5.2} | Sharpe: {:>6.2} | MaxDD: {:>6.4} | Trades: {:>4} | Fit: {:>9.2} | MutRate: {:.2} | TP: {:.5} | SL: {:.5} | Risk: {:.5} | Cldwn: {:>5.0}",
-            prefix, self.gen, self.pnl, self.win_rate, self.profit_factor, self.sharpe,
-            self.max_drawdown, self.trades, self.fitness, self.mut_rate,
-            self.tp, self.sl, self.risk, self.cooldown
+            "{} [{}] {:>6} | Gen: {:>4} | Fit: {:>10.2} | PnL: {:>8.4} | Win: {:>6.2}% | PF: {:>5.2} | Sharpe: {:>6.2} | DD: {:>6.4} | Trd: {:>5} | Mut: {:.2} | TP: {:.5} | SL: {:.5} | Risk: {:.5} | Cld: {:>5.0} | T: {:>6.2}s",
+            emoji,
+            self.timestamp,
+            self.status,
+            self.gen,
+            self.fitness,
+            self.pnl,
+            self.win_rate,
+            self.profit_factor,
+            self.sharpe,
+            self.max_drawdown,
+            self.trades,
+            self.mut_rate,
+            self.tp,
+            self.sl,
+            self.risk,
+            self.cooldown,
+            self.time_sec
         )
     }
 }
@@ -115,7 +130,6 @@ impl AuditEngine {
         }
     }
 
-    /// CSV dosyasını oluşturur ve başlığı yazar
     pub fn initialize_csv(&self) -> Result<()> {
         if !std::path::Path::new(&self.log_path).exists() {
             let mut file = fs::File::create(&self.log_path)?;
@@ -139,8 +153,6 @@ impl AuditEngine {
         Ok(())
     }
 
-    /// ANA METOD: Hem konsola basar hem CSV'ye yazar.
-    /// Veri tutarsızlığını imkansız hale getirir.
     pub fn log_generation(
         &self,
         gen: usize,
@@ -151,11 +163,11 @@ impl AuditEngine {
     ) -> Result<()> {
         let record = AuditRecord::from_genome(gen, best, mut_rate, time_sec, is_record);
 
-        // 1. CSV'ye ekle
+        // CSV Yazımı
         let mut file = OpenOptions::new().append(true).open(&self.log_path)?;
         writeln!(file, "{}", record.to_csv_row())?;
 
-        // 2. Konsola yazdır
+        // Konsol Yazımı
         println!("{}", record);
 
         Ok(())
