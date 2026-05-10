@@ -33,6 +33,7 @@ pub struct SimulationResult {
     pub sharpe: f64,
     pub max_dd: f64,
     pub trades: usize,
+    pub win_rate: f64, // 🔥 CERRAHİ: Win Rate eklendi
 }
 
 #[derive(Clone, Default)]
@@ -83,12 +84,11 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
     let mut peak_equity = balance;
     let mut returns = Vec::new();
     let mut trade_count = 0;
-    // last_signal_ms kaldırıldı. Cooldown'ı Core RiskEngine yönetecek.
+    let mut winning_trades = 0; // 🔥 CERRAHİ: Win Rate takibi
     let mut current_prices = HashMap::new();
 
-    // sentinel-execution ile BİREBİR aynı simülasyon dinamikleri
-    let base_slippage_pct = 0.00005; // 0.5 bps
-    let fee_rate = 0.0002; // 2 bps
+    let base_slippage_pct = 0.00005;
+    let fee_rate = 0.0002;
 
     for tick in ticks {
         let sec = tick.timestamp / 1000;
@@ -174,8 +174,8 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
                 let mut features = [0.0f32; 12];
                 features[0] = z_scores[0].update(velocity, 10000.0) as f32;
                 features[1] = z_scores[1].update(trade_imb, 1.0) as f32;
-                features[2] = z_scores[2].update(0.0, 1.0) as f32; // Sentiment (Offline simüle edilmez)
-                features[3] = z_scores[3].update(0.0, 1.0) as f32; // Urgency (Offline simüle edilmez)
+                features[2] = z_scores[2].update(0.0, 1.0) as f32;
+                features[3] = z_scores[3].update(0.0, 1.0) as f32;
                 features[4] = z_scores[4].update(rsi, 1.0) as f32;
                 features[5] = z_scores[5].update(volatility, 10000.0) as f32;
                 features[6] = z_scores[6].update(taker_ratio, 1.0) as f32;
@@ -195,7 +195,6 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
                             timestamp: tick.timestamp,
                         };
 
-                        // Core Risk Engine Cooldown ve Margin kontrolünü kendisi yapar!
                         if let Ok(qty) = risk_engine.evaluate_signal(
                             &signal,
                             tick.price,
@@ -210,7 +209,6 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
                                 "SELL"
                             };
 
-                            // 🦅 Slippage %0.005 ile sentinel-execution'a eşitlendi!
                             let exec_price = if side == "BUY" {
                                 tick.price * (1.0 + base_slippage_pct)
                             } else {
@@ -224,7 +222,7 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
                                 qty,
                                 tick.timestamp,
                             );
-                            balance -= (exec_price * qty) * fee_rate; // Sadece komisyon düşer, PnL pozisyon kapanınca.
+                            balance -= (exec_price * qty) * fee_rate;
                         }
                     }
                 }
@@ -259,6 +257,10 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
             returns.push(net_pnl / 1000.0);
             trade_count += 1;
 
+            if net_pnl > 0.0 {
+                winning_trades += 1; // 🔥 CERRAHİ: Win Rate hesaplama verisi
+            }
+
             if balance > peak_equity {
                 peak_equity = balance;
             }
@@ -271,11 +273,18 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
         0.0
     };
 
+    let win_rate = if trade_count > 0 {
+        (winning_trades as f64 / trade_count as f64) * 100.0
+    } else {
+        0.0
+    };
+
     SimulationResult {
         pnl: balance - 1000.0,
         sharpe: calculate_sharpe(&returns),
         max_dd,
         trades: trade_count,
+        win_rate,
     }
 }
 
@@ -298,5 +307,6 @@ fn dead_result() -> SimulationResult {
         sharpe: 0.0,
         max_dd: 100.0,
         trades: 0,
+        win_rate: 0.0,
     }
 }

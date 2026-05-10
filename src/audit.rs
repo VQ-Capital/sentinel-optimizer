@@ -18,13 +18,13 @@ impl AuditEngine {
         }
     }
 
-    /// 🔥 CERRAHİ: Artık dosya varsa üzerine YAZMAZ (Geçmişi korur).
     pub fn initialize_csv(&self) -> Result<()> {
         if !std::path::Path::new(&self.log_path).exists() {
             let mut file = fs::File::create(&self.log_path)?;
+            // 🔥 CERRAHİ: WinRate başlığa eklendi
             writeln!(
                 file,
-                "Timestamp,Gen,PnL,Sharpe,MaxDD,Trades,Fit,MutRate,TP,SL,Risk,Cooldown,TimeSec"
+                "Timestamp,Gen,PnL,Sharpe,MaxDD,Trades,Fit,MutRate,TP,SL,Risk,Cooldown,TimeSec,WinRate"
             )?;
         }
         Ok(())
@@ -45,7 +45,6 @@ impl AuditEngine {
         Ok(())
     }
 
-    /// Her jenerasyonun sonucunu CSV'ye damgalar
     pub fn log_generation(
         &self,
         gen: usize,
@@ -55,10 +54,10 @@ impl AuditEngine {
     ) -> Result<()> {
         let mut file = OpenOptions::new().append(true).open(&self.log_path)?;
 
-        // 🔥 HFT HASSASİYETİ: Tüm metrikler 6 ondalığa kilitlendi.
+        // 🔥 CERRAHİ: WinRate CSV satırına eklendi
         writeln!(
             file,
-            "{},{},{:.6},{:.6},{:.6},{},{:.6},{:.2},{:.6},{:.6},{:.6},{:.0},{:.2}",
+            "{},{},{:.6},{:.6},{:.6},{},{:.6},{:.2},{:.6},{:.6},{:.6},{:.0},{:.2},{:.2}",
             Utc::now().to_rfc3339(),
             gen,
             best.pnl,
@@ -67,16 +66,16 @@ impl AuditEngine {
             best.trades,
             best.fitness,
             mut_rate,
-            best.weights[39], // TP
-            best.weights[40], // SL
-            best.weights[42], // Risk
-            best.weights[41], // Cooldown
-            time_sec
+            best.weights[39],
+            best.weights[40],
+            best.weights[42],
+            best.weights[41],
+            time_sec,
+            best.win_rate
         )?;
         Ok(())
     }
 
-    /// Konsola kurumsal formatta ilerleme basar
     pub fn print_progress(
         &self,
         gen: usize,
@@ -92,10 +91,11 @@ impl AuditEngine {
         };
 
         println!(
-            "{} [Gen {:>3}] PnL: {:>10.6} | Sharpe: {:>10.6} | MaxDD: {:>8.6} | Trades: {:>4} | Fit: {:>10.6} | MutRate: {:.2} | TP: {:.6} | SL: {:.6} | Risk: {:.6} | Cooldown: {:>5.0} | Süre: {:.2}s",
+            "{}[Gen {:>3}] PnL: {:>10.6} | Win: {:>5.2}% | Sharpe: {:>8.4} | MaxDD: {:>8.6} | Trades: {:>4} | Fit: {:>10.6} | MutRate: {:.2} | TP: {:.6} | SL: {:.6} | Risk: {:.6} | Cldwn: {:>5.0} | Süre: {:.2}s",
             prefix,
             gen,
             best.pnl,
+            best.win_rate,
             best.sharpe,
             best.max_drawdown,
             best.trades,

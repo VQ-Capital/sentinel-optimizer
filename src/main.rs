@@ -12,7 +12,7 @@ use audit::AuditEngine;
 use simulator::{run_simulation, HistoricalTick};
 
 #[derive(Parser, Debug)]
-#[command(author, version, about = "VQ-Capital V14.5 Alpha Strike", long_about = None)]
+#[command(author, version, about = "VQ-Capital V14.6 Alpha Strike", long_about = None)]
 struct Args {
     #[arg(
         short,
@@ -37,11 +37,13 @@ pub struct Genome {
     pub max_drawdown: f64,
     pub trades: usize,
     pub generation: usize,
+    #[serde(default)] // 🛡️ Geriye Dönük Uyumluluk (Önceki JSON'ları bozmaz)
+    pub win_rate: f64,
 }
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
-    info!("🧬 VQ-CAPITAL V14.5 ALPHA-STRIKE ENGINE BAŞLATILIYOR...");
+    info!("🧬 VQ-CAPITAL V14.6 ALPHA-STRIKE ENGINE BAŞLATILIYOR...");
 
     let args = Args::parse();
     let audit = AuditEngine::new();
@@ -71,7 +73,6 @@ fn main() -> Result<()> {
     }
 
     let mut stagnation_counter = 0;
-    // 🔥 CERRAHİ: Başlangıç Mutasyon oranı düşürüldü. (Hedefli Evrim)
     let mut current_mutation_rate = 0.05f32;
 
     for gen in 1..=args.generations {
@@ -83,8 +84,15 @@ fn main() -> Result<()> {
             genome.sharpe = result.sharpe;
             genome.max_drawdown = result.max_dd;
             genome.trades = result.trades;
-            genome.fitness =
-                calculate_fitness(result.pnl, result.sharpe, result.max_dd, result.trades);
+            genome.win_rate = result.win_rate; // 🔥 CERRAHİ GÜNCELLEME
+
+            genome.fitness = calculate_fitness(
+                result.pnl,
+                result.sharpe,
+                result.max_dd,
+                result.trades,
+                result.win_rate,
+            );
             genome.generation = gen;
         });
 
@@ -97,16 +105,14 @@ fn main() -> Result<()> {
         let gen_best = &population[0];
         let mut is_record = false;
 
-        // 🔥 CERRAHİ: Hafızadan okunan ilk turun "Stagnation" yaratması engellendi
         let is_first_run_of_loaded = has_loaded_memory && gen == 1;
 
         if gen_best.fitness > best_all_time.fitness || is_first_run_of_loaded {
             best_all_time = gen_best.clone();
             stagnation_counter = 0;
-            current_mutation_rate = 0.05; // Mutasyon normale döner
+            current_mutation_rate = 0.05;
             is_record = true;
 
-            // İlk yüklemeyse dosyaya tekrar yazmaya gerek yok
             if !is_first_run_of_loaded {
                 let _ = audit.save_record_break(&best_all_time);
             }
@@ -114,7 +120,6 @@ fn main() -> Result<()> {
             stagnation_counter += 1;
             if stagnation_counter > 15 {
                 warn!("🌋 [CATACLYSM] Stagnation! Boosting Diversity.");
-                // 🔥 CERRAHİ: Kriz anında bile %25'in üstüne çıkılamaz.
                 current_mutation_rate = 0.25;
             } else {
                 current_mutation_rate = (current_mutation_rate + 0.02).min(0.20);
@@ -138,7 +143,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn calculate_fitness(pnl: f64, sharpe: f64, max_dd: f64, trades: usize) -> f64 {
+fn calculate_fitness(pnl: f64, sharpe: f64, max_dd: f64, trades: usize, win_rate: f64) -> f64 {
     if max_dd >= 90.0 {
         return -100_000.0 - (trades as f64);
     }
@@ -152,9 +157,16 @@ fn calculate_fitness(pnl: f64, sharpe: f64, max_dd: f64, trades: usize) -> f64 {
         0.0
     };
 
+    // 🔥 CERRAHİ: Win-Rate Penaltı Mekanizması (%40 Altı Stratejiler Elenir)
+    let win_rate_penalty = if win_rate < 40.0 {
+        (40.0 - win_rate) * 1000.0
+    } else {
+        0.0
+    };
+
     if pnl <= 0.0 {
-        // 🔥 CERRAHİ: Zararı işlem sayısına BÖLME! (AI'nin bizi kandırmasını engeller)
-        (pnl * 10.0) - (max_dd * 100.0) - overtrading_penalty
+        // 🔥 CERRAHİ: Zarar edenlerin katsayıları artırıldı
+        (pnl * 100.0) - (max_dd * 1000.0) - overtrading_penalty - win_rate_penalty
     } else {
         let dd_mult = if max_dd > 10.0 {
             0.1
@@ -163,7 +175,9 @@ fn calculate_fitness(pnl: f64, sharpe: f64, max_dd: f64, trades: usize) -> f64 {
         } else {
             1.0
         };
-        (pnl * sharpe.powi(2) * (trades as f64).log10() * dd_mult) - overtrading_penalty
+        (pnl * sharpe.powi(2) * (trades as f64).log10() * dd_mult) + (win_rate * 50.0)
+            - overtrading_penalty
+            - win_rate_penalty
     }
 }
 
@@ -175,14 +189,14 @@ fn create_random_genome() -> Genome {
         dna.push(rng.gen_range(-1.0..1.0));
     }
 
-    dna.push(rng.gen_range(0.2..0.8)); // 36: HOLD bias
-    dna.push(rng.gen_range(-0.1..0.1)); // 37: BUY bias
-    dna.push(rng.gen_range(-0.1..0.1)); // 38: SELL bias
+    dna.push(rng.gen_range(0.2..0.8));
+    dna.push(rng.gen_range(-0.1..0.1));
+    dna.push(rng.gen_range(-0.1..0.1));
 
-    dna.push(rng.gen_range(0.010..0.030)); // 39: TP
-    dna.push(rng.gen_range(0.005..0.015)); // 40: SL
-    dna.push(rng.gen_range(2000.0..10000.0)); // 41: Cooldown
-    dna.push(rng.gen_range(0.01..0.05)); // 42: Risk
+    dna.push(rng.gen_range(0.010..0.030));
+    dna.push(rng.gen_range(0.005..0.015));
+    dna.push(rng.gen_range(2000.0..10000.0));
+    dna.push(rng.gen_range(0.01..0.05));
 
     Genome {
         weights: dna,
@@ -192,6 +206,7 @@ fn create_random_genome() -> Genome {
         max_drawdown: 0.0,
         trades: 0,
         generation: 0,
+        win_rate: 0.0, // 🔥 INIT
     }
 }
 
@@ -225,7 +240,6 @@ fn evolve_population(
                 p2.weights[i]
             };
 
-            // 🔥 CERRAHİ: Mutasyon adımları çok daha rafine hale getirildi
             if rng.gen_bool(mut_rate as f64) {
                 if i < 36 {
                     gene += rng.gen_range(-0.1..0.1);
@@ -264,6 +278,7 @@ fn evolve_population(
             max_drawdown: 0.0,
             trades: 0,
             generation: 0,
+            win_rate: 0.0,
         });
     }
 
