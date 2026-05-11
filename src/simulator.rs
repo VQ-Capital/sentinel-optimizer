@@ -34,7 +34,7 @@ pub struct SimulationResult {
     pub max_dd: f64,
     pub trades: usize,
     pub win_rate: f64,
-    pub profit_factor: f64, // 🔥 YENİ: Dış Denetçiler İçin Kâr Katsayısı
+    pub profit_factor: f64,
 }
 
 #[derive(Clone, Default)]
@@ -57,6 +57,9 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
         Err(_) => return dead_result(),
     };
 
+    // 🔥 CERRAHİ: 44. Gen (Index 43) Confidence Sınırını Belirler!
+    let ai_confidence_threshold = (dna[43] as f64).clamp(0.40, 0.95);
+
     let risk_config = RiskConfig {
         initial_balance: 1000.0,
         max_drawdown_usd: 950.0,
@@ -66,8 +69,8 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
         max_hold_time_ms: 3_600_000,
         base_risk_pct: (dna[42] as f64).clamp(0.01, 0.05),
         base_leverage: 1.0,
-        take_profit_pct: (dna[39] as f64).clamp(0.006, 0.05),
-        stop_loss_pct: (dna[40] as f64).clamp(0.004, 0.03),
+        take_profit_pct: (dna[39] as f64).clamp(0.005, 0.05),
+        stop_loss_pct: (dna[40] as f64).clamp(0.003, 0.03),
     };
 
     let mut risk_engine = RiskEngine::new(risk_config.clone());
@@ -86,8 +89,8 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
     let mut returns = Vec::new();
     let mut trade_count = 0;
     let mut winning_trades = 0;
-    let mut gross_profit = 0.0; // 🔥 YENİ
-    let mut gross_loss = 0.0; // 🔥 YENİ
+    let mut gross_profit = 0.0;
+    let mut gross_loss = 0.0;
     let mut current_prices = HashMap::new();
 
     let base_slippage_pct = 0.00005;
@@ -189,7 +192,8 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
                 features[11] = z_scores[11].update(price_to_mean, 1000.0) as f32;
 
                 if let Ok((sig_type, conf)) = model.predict(&features) {
-                    if sig_type != SignalType::Hold && conf > 0.42 {
+                    // 🔥 CERRAHİ: Kendi ürettiği tetiği (Threshold) kullanıyor!
+                    if sig_type != SignalType::Hold && conf > ai_confidence_threshold {
                         let signal = TradeSignal {
                             symbol: symbol.to_string(),
                             signal_type: sig_type,
@@ -288,7 +292,7 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
     let profit_factor = if gross_loss > 0.0 {
         gross_profit / gross_loss
     } else if gross_profit > 0.0 {
-        99.9 // Zero kayıp, full kâr durumu
+        99.9
     } else {
         0.0
     };

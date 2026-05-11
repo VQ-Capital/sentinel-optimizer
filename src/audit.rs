@@ -8,7 +8,7 @@ use std::io::Write;
 
 pub struct AuditRecord {
     pub timestamp: String,
-    pub status: String, // "RECORD" veya "PROGRESS"
+    pub status: String,
     pub gen: usize,
     pub fitness: f64,
     pub pnl: f64,
@@ -22,14 +22,14 @@ pub struct AuditRecord {
     pub sl: f32,
     pub risk: f32,
     pub cooldown: f32,
+    pub conf: f32, // 🔥 CERRAHİ: Yeni AI Tetiği
     pub time_sec: f32,
-    pub is_record: bool, // Emoji seçimi için dahili kontrol
+    pub is_record: bool,
 }
 
 impl AuditRecord {
-    /// CSV Başlığı: Artık Status ve Timestamp en başta
     pub const CSV_HEADER: &'static str =
-        "Timestamp,Status,Gen,Fitness,PnL,WinRate,PF,Sharpe,MaxDD,Trades,MutRate,TP,SL,Risk,Cooldown,TimeSec";
+        "Timestamp,Status,Gen,Fitness,PnL,WinRate,PF,Sharpe,MaxDD,Trades,MutRate,TP,SL,Risk,Cooldown,Conf,TimeSec";
 
     pub fn from_genome(
         gen: usize,
@@ -39,7 +39,6 @@ impl AuditRecord {
         is_record: bool,
     ) -> Self {
         Self {
-            // Daha okunabilir bir timestamp (Opsiyonel: RFC3339 yerine daha kısa bir format da seçilebilir)
             timestamp: Utc::now().format("%Y-%m-%d %H:%M:%S").to_string(),
             status: if is_record {
                 "RECORD".to_string()
@@ -59,15 +58,15 @@ impl AuditRecord {
             sl: best.weights[40],
             cooldown: best.weights[41],
             risk: best.weights[42],
+            conf: best.weights[43], // 🔥 DNA'nın 44. Geni (Index 43)
             time_sec,
             is_record,
         }
     }
 
-    /// CSV Satırı: Konsol ile tam senkronize sıra
     pub fn to_csv_row(&self) -> String {
         format!(
-            "{},{},{},{:.2},{:.4},{:.2},{:.2},{:.2},{:.4},{},{:.2},{:.6},{:.6},{:.6},{:.0},{:.2}",
+            "{},{},{},{:.2},{:.4},{:.2},{:.2},{:.2},{:.4},{},{:.2},{:.6},{:.6},{:.6},{:.0},{:.3},{:.2}",
             self.timestamp,
             self.status,
             self.gen,
@@ -83,19 +82,19 @@ impl AuditRecord {
             self.sl,
             self.risk,
             self.cooldown,
+            self.conf,
             self.time_sec
         )
     }
 }
 
-/// Konsol Çıktısı: CSV ile aynı veri sırası, sadece görsel süslemeler (emoji) eklenmiş hali
 impl fmt::Display for AuditRecord {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let emoji = if self.is_record { "🌟" } else { "🔄" };
 
         write!(
             f,
-            "{} [{}] {:>6} | Gen: {:>4} | Fit: {:>10.2} | PnL: {:>8.4} | Win: {:>6.2}% | PF: {:>5.2} | Sharpe: {:>6.2} | DD: {:>6.4} | Trd: {:>5} | Mut: {:.2} | TP: {:.5} | SL: {:.5} | Risk: {:.5} | Cld: {:>5.0} | T: {:>6.2}s",
+            "{} [{}] {:>6} | Gen: {:>4} | Fit: {:>10.2} | PnL: {:>8.4} | Win: {:>5.2}% | PF: {:>4.2} | DD: {:>6.4} | Trd: {:>4} | Mut: {:.2} | TP: {:.4} | SL: {:.4} | Rsk: {:.4} | Cld: {:>4.0} | Cnf: {:.2}",
             emoji,
             self.timestamp,
             self.status,
@@ -104,7 +103,6 @@ impl fmt::Display for AuditRecord {
             self.pnl,
             self.win_rate,
             self.profit_factor,
-            self.sharpe,
             self.max_drawdown,
             self.trades,
             self.mut_rate,
@@ -112,7 +110,7 @@ impl fmt::Display for AuditRecord {
             self.sl,
             self.risk,
             self.cooldown,
-            self.time_sec
+            self.conf
         )
     }
 }
@@ -163,11 +161,8 @@ impl AuditEngine {
     ) -> Result<()> {
         let record = AuditRecord::from_genome(gen, best, mut_rate, time_sec, is_record);
 
-        // CSV Yazımı
         let mut file = OpenOptions::new().append(true).open(&self.log_path)?;
         writeln!(file, "{}", record.to_csv_row())?;
-
-        // Konsol Yazımı
         println!("{}", record);
 
         Ok(())
