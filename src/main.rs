@@ -12,7 +12,7 @@ use audit::AuditEngine;
 use simulator::{run_simulation, HistoricalTick};
 
 #[derive(Parser, Debug)]
-#[command(author, version, about = "VQ-Capital V15.2 HFT-Forcer", long_about = None)]
+#[command(author, version, about = "VQ-Capital V15.3 Omni-Force", long_about = None)]
 struct Args {
     #[arg(
         short,
@@ -45,7 +45,7 @@ pub struct Genome {
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
-    info!("🧬 VQ-CAPITAL V15.2 HFT-FORCER ENGINE BAŞLATILIYOR...");
+    info!("🧬 VQ-CAPITAL V15.3 OMNI-FORCE ENGINE BAŞLATILIYOR...");
 
     let args = Args::parse();
     let audit = AuditEngine::new();
@@ -59,7 +59,7 @@ fn main() -> Result<()> {
     println!("📂 Dataset Path  : {}", args.csv_file_path);
     println!("🧬 Generations   : {}", args.generations);
     println!("👥 Population    : {}", args.population);
-    println!("⚙️ Fitness Rule  : Anti-Sniper HFT Forcer & Volume Multiplier");
+    println!("⚙️ Fitness Rule  : Strict PF>1 & WinRate>45% Enforcement");
     println!("=======================================================\n");
 
     let mut reader = csv::ReaderBuilder::new()
@@ -89,7 +89,8 @@ fn main() -> Result<()> {
     }
 
     let mut stagnation_counter = 0;
-    let mut current_mutation_rate = 0.08f32;
+    // 🔥 CERRAHİ: Mutasyon tabanı %10'a çıkarıldı. Daha hızlı kaçış sağlayacak.
+    let mut current_mutation_rate = 0.10f32;
 
     for gen in 1..=args.generations {
         let start_time = std::time::Instant::now();
@@ -103,7 +104,6 @@ fn main() -> Result<()> {
             genome.win_rate = result.win_rate;
             genome.profit_factor = result.profit_factor;
 
-            // 🔥 HFT FORCER FITNESS
             genome.fitness = calculate_fitness(
                 result.pnl,
                 result.sharpe,
@@ -129,7 +129,7 @@ fn main() -> Result<()> {
         if gen_best.fitness > (best_all_time.fitness + 0.1) || is_first_run_of_loaded {
             best_all_time = gen_best.clone();
             stagnation_counter = 0;
-            current_mutation_rate = 0.08;
+            current_mutation_rate = 0.10; // Mutasyon normale döner
             is_record = true;
 
             if !is_first_run_of_loaded {
@@ -137,11 +137,12 @@ fn main() -> Result<()> {
             }
         } else {
             stagnation_counter += 1;
-            if stagnation_counter > 10 {
-                warn!("🌋[MASS EXTINCTION] Stagnation! Nüfusun %90'ı yok ediliyor.");
-                current_mutation_rate = 0.40;
+            if stagnation_counter > 8 {
+                // 🔥 CERRAHİ: 8 Nesilde kilitlenirse VUR!
+                warn!("🌋[MASS EXTINCTION] Stagnation! %90 Nüfus imha ediliyor.");
+                current_mutation_rate = 0.45;
             } else {
-                current_mutation_rate = (current_mutation_rate + 0.03).min(0.25);
+                current_mutation_rate = (current_mutation_rate + 0.04).min(0.30);
             }
         }
 
@@ -152,17 +153,17 @@ fn main() -> Result<()> {
             &population,
             args.population,
             current_mutation_rate,
-            stagnation_counter > 10,
+            stagnation_counter > 8,
         );
 
-        if stagnation_counter > 10 {
+        if stagnation_counter > 8 {
             stagnation_counter = 0;
         }
     }
     Ok(())
 }
 
-// 🛡️ HFT-FORCER FITNESS (Keskin Nişancıları Öldürür)
+// 🛡️ OMNI-FORCE FITNESS (WinRate ve Kâr Garantisi)
 fn calculate_fitness(
     pnl: f64,
     sharpe: f64,
@@ -172,73 +173,75 @@ fn calculate_fitness(
     profit_factor: f64,
 ) -> f64 {
     // 1. ÖLÜM SINIRLARI
-    if trades < 30 {
-        return -1_000_000.0; // 🔥 CERRAHİ: 11 işlem yapıp saklanamazsın! Minimum 30 işlem.
+    if trades < 50 {
+        return -1_000_000.0; // Tembellik tamamen yasak
     }
-    if max_dd >= 50.0 {
-        return -500_000.0;
+    if max_dd >= 40.0 {
+        return -500_000.0; // Sermaye koruması
     }
 
     let mut fitness = 0.0;
 
-    // 2. İSTATİSTİKSEL GEÇERLİLİK ÇARPANI
-    // 30 günde HFT botu işlem yapmalıdır. 150 işleme kadar ciddi ceza yer.
-    if trades < 150 {
-        fitness -= (150 - trades) as f64 * 2000.0; // Tembellik ağır cezalandırılır
-    } else if trades > 3000 {
-        fitness -= (trades - 3000) as f64 * 10.0; // Komisyon israfı cezası
+    // 2. İSTATİSTİKSEL GEÇERLİLİK
+    if trades < 300 {
+        fitness -= (300 - trades) as f64 * 1000.0;
+    } else if trades > 4000 {
+        fitness -= (trades - 4000) as f64 * 10.0;
     }
 
-    // İşlem sayısına göre logaritmik çarpan.
-    // AI kâr etmek istiyorsa, bu kârı ÇOK İŞLEM YAPARAK kanıtlamak zorunda!
-    let trade_multiplier = (trades as f64).log10().max(1.0);
+    // 🔥 3. KAZANMA ORANI DİKTATÖRLÜĞÜ
+    if win_rate < 45.0 {
+        // Rastgele tahminden (%50) kötü olanlar cehenneme gider.
+        // Gözlemci raporlarındaki %2.5 gibi rezil WinRate'ler anında elenecek.
+        fitness -= (45.0 - win_rate) * 5000.0;
+    } else {
+        fitness += win_rate * 500.0;
+    }
 
-    // 3. PNL (Kâr = Kral)
+    // 🔥 4. KÂR ÇARPANI (PROFIT FACTOR) İLAHI
+    if profit_factor < 1.0 {
+        // Zarar eden sistemler ölümcül ceza yer. PF 0.01 olan sistem -99.000 puan yer!
+        fitness -= (1.0 - profit_factor) * 100_000.0;
+    } else {
+        // Kârlı sistemler krallık tacını takar
+        fitness += profit_factor * 50_000.0;
+    }
+
+    // 5. PNL
     if pnl > 0.0 {
-        fitness += pnl * 10000.0 * trade_multiplier; // Kârı işlem sıklığı ile çarpıyoruz!
+        fitness += pnl * 5000.0;
     } else {
-        fitness += pnl * 50.0;
+        fitness += pnl * 100.0; // Negatif PnL zaten PF<1.0'dan devasa ceza yediği için burası semboliktir
     }
 
-    // 4. KALİTE GÖSTERGELERİ
-    fitness += win_rate * 100.0 * trade_multiplier;
-
-    if profit_factor > 1.0 {
-        fitness += profit_factor * 5000.0 * trade_multiplier;
-    } else {
-        fitness -= (1.0 - profit_factor) * 2000.0;
-    }
-
+    // 6. RİSK VE GÜVENLİK
     if sharpe > 0.0 {
-        fitness += sharpe * 500.0;
+        fitness += sharpe * 1000.0;
     }
-
-    // 5. MAX DD
-    fitness -= max_dd * 200.0;
+    fitness -= max_dd * 500.0;
 
     fitness
 }
 
+// 🔥 CERRAHİ: SÜPER SİMETRİ (Dar alanlardan başlatıyoruz)
 fn create_random_genome() -> Genome {
     let mut rng = rand::thread_rng();
     let mut dna: Vec<f32> = Vec::with_capacity(44);
 
     for _ in 0..36 {
-        dna.push(rng.gen_range(-2.0..2.0));
+        dna.push(rng.gen_range(-0.5..0.5)); // Uçurumlara gitmemesi için 0 etrafında başlat
     }
 
-    // 🔥 HFT'ye Zorlamak İçin Başlangıç Bias'ları Buy/Sell Yönüne Kaydırıldı
-    dna.push(rng.gen_range(-0.8..0.2)); // Hold Bias'ı düşürüldü
-    dna.push(rng.gen_range(0.0..1.0)); // Buy Bias artırıldı
-    dna.push(rng.gen_range(0.0..1.0)); // Sell Bias artırıldı
+    dna.push(rng.gen_range(-0.2..0.2)); // Hold Bias
+    dna.push(rng.gen_range(-0.5..0.5)); // Buy Bias
+    dna.push(rng.gen_range(-0.5..0.5)); // Sell Bias
 
-    dna.push(rng.gen_range(0.005..0.040)); // TP
-    dna.push(rng.gen_range(0.003..0.020)); // SL
-    dna.push(rng.gen_range(500.0..5000.0)); // 🔥 Cooldown Kısaltıldı (Daha hızlı işlem açsın)
-    dna.push(rng.gen_range(0.01..0.05)); // Risk
+    dna.push(rng.gen_range(0.008..0.025)); // TP (Daraltıldı, küçük kârları alsın)
+    dna.push(rng.gen_range(0.005..0.015)); // SL
+    dna.push(rng.gen_range(500.0..3000.0)); // Cooldown (Hızlı işlem açsın)
+    dna.push(rng.gen_range(0.01..0.03)); // Risk
 
-    // Confidence (0.40 - 0.70) => Başta tetiğe daha kolay bassın
-    dna.push(rng.gen_range(0.40..0.70));
+    dna.push(rng.gen_range(0.40..0.60)); // Confidence Threshold
 
     Genome {
         weights: dna,
@@ -269,6 +272,7 @@ fn evolve_population(
     };
     new_pop.extend_from_slice(&current_pop[0..elite_count]);
 
+    // Extinction'da %90 Ölüm!
     let random_injection = if is_cataclysm {
         (total_size as f32 * 0.9) as usize
     } else {
@@ -287,34 +291,35 @@ fn evolve_population(
                 p2.weights[i]
             };
 
-            // Sign Flip Mutation
-            if i < 39 && rng.gen_bool(0.02) {
+            // 🔥 SIGN FLIP (İŞARET TERSİNE ÇEVİRME) MUTASYONU ARTIRILDI
+            if i < 39 && rng.gen_bool(0.05) {
+                // %5 ihtimalle yön değiştir!
                 gene = -gene;
             }
 
             if rng.gen_bool(mut_rate as f64) {
                 if i < 36 {
-                    gene += rng.gen_range(-0.5..0.5);
-                } else if (36..39).contains(&i) {
                     gene += rng.gen_range(-0.3..0.3);
+                } else if (36..39).contains(&i) {
+                    gene += rng.gen_range(-0.1..0.1);
                 } else if i == 39 || i == 40 {
-                    gene += rng.gen_range(-0.002..0.002);
+                    gene += rng.gen_range(-0.001..0.001);
                 } else if i == 41 {
-                    gene += rng.gen_range(-500.0..500.0);
+                    gene += rng.gen_range(-200.0..200.0);
                 } else if i == 43 {
-                    gene += rng.gen_range(-0.05..0.05);
+                    gene += rng.gen_range(-0.02..0.02);
                 } else {
-                    gene += rng.gen_range(-0.01..0.01);
+                    gene += rng.gen_range(-0.005..0.005);
                 }
             }
 
-            // Sınır Korumaları (Clamp)
+            // Clamp (Sınırlar)
             if i == 39 {
                 gene = gene.clamp(0.005, 0.05);
             } else if i == 40 {
                 gene = gene.clamp(0.003, 0.03);
             } else if i == 41 {
-                gene = gene.clamp(100.0, 30000.0); // Minimum cooldown 100ms'ye düştü!
+                gene = gene.clamp(100.0, 30000.0);
             } else if i == 42 {
                 gene = gene.clamp(0.01, 0.05);
             } else if i == 43 {
