@@ -94,7 +94,7 @@ impl fmt::Display for AuditRecord {
 
         write!(
             f,
-            "{} [{}] {:>6} | Gen: {:>4} | Fit: {:>10.2} | PnL: {:>8.4} | Win: {:>5.2}% | PF: {:>4.2} | DD: {:>6.4} | Trd: {:>4} | Mut: {:.2} | TP: {:.4} | SL: {:.4} | Rsk: {:.4} | Cld: {:>4.0} | Cnf: {:.2}",
+            "{} [{}] {:>6} | Gen: {:>4} | Fit: {:>10.2} | PnL: {:>8.4} | Win: {:>5.2}% | PF: {:>4.2} | Sharpe: {:>6.2} | DD: {:>6.4} | Trd: {:>4} | Mut: {:.2} | TP: {:.4} | SL: {:.4} | Rsk: {:.4} | Cld: {:>4.0} | Cnf: {:.2} | T: {:>6.2}s",
             emoji,
             self.timestamp,
             self.status,
@@ -103,6 +103,7 @@ impl fmt::Display for AuditRecord {
             self.pnl,
             self.win_rate,
             self.profit_factor,
+            self.sharpe,
             self.max_drawdown,
             self.trades,
             self.mut_rate,
@@ -110,7 +111,8 @@ impl fmt::Display for AuditRecord {
             self.sl,
             self.risk,
             self.cooldown,
-            self.conf
+            self.conf,
+            self.time_sec
         )
     }
 }
