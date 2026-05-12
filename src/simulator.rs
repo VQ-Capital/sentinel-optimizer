@@ -1,10 +1,11 @@
 // ========== DOSYA: sentinel-optimizer/src/simulator.rs ==========
+use crate::settings::*;
 use sentinel_core::math::model::PureMathModel;
 use sentinel_core::math::zscore::OnlineZScore;
 use sentinel_core::risk::engine::{RiskConfig, RiskEngine};
 use sentinel_core::types::{SignalType, TradeSignal};
 use serde::{Deserialize, Deserializer};
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap, VecDeque}; // 🔥 YENİ: Ayarları içeri alıyoruz
 
 fn deserialize_binance_bool<'de, D>(deserializer: D) -> Result<bool, D::Error>
 where
@@ -57,20 +58,20 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
         Err(_) => return dead_result(),
     };
 
-    // 🔥 CERRAHİ: 44. Gen (Index 43) Confidence Sınırını Belirler!
-    let ai_confidence_threshold = (dna[43] as f64).clamp(0.40, 0.95);
+    let ai_confidence_threshold =
+        (dna[43] as f64).clamp(DNA_CONFIDENCE_MIN as f64, DNA_CONFIDENCE_MAX as f64);
 
     let risk_config = RiskConfig {
-        initial_balance: 1000.0,
-        max_drawdown_usd: 950.0,
-        defensive_drawdown_usd: 800.0,
+        initial_balance: INITIAL_BALANCE,
+        max_drawdown_usd: INITIAL_BALANCE * (MAX_ALLOWED_DD / 100.0),
+        defensive_drawdown_usd: INITIAL_BALANCE * ((MAX_ALLOWED_DD * 0.8) / 100.0),
         cooldown_ms: dna[41] as i64,
-        min_hold_time_ms: 1000,
+        min_hold_time_ms: 100,
         max_hold_time_ms: 3_600_000,
         base_risk_pct: (dna[42] as f64).clamp(0.01, 0.05),
         base_leverage: 1.0,
-        take_profit_pct: (dna[39] as f64).clamp(0.005, 0.05),
-        stop_loss_pct: (dna[40] as f64).clamp(0.003, 0.03),
+        take_profit_pct: (dna[39] as f64).clamp(DNA_TP_MIN as f64, DNA_TP_MAX as f64),
+        stop_loss_pct: (dna[40] as f64).clamp(DNA_SL_MIN as f64, DNA_SL_MAX as f64),
     };
 
     let mut risk_engine = RiskEngine::new(risk_config.clone());
@@ -92,9 +93,6 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
     let mut gross_profit = 0.0;
     let mut gross_loss = 0.0;
     let mut current_prices = HashMap::new();
-
-    let base_slippage_pct = 0.00005;
-    let fee_rate = 0.0002;
 
     for tick in ticks {
         let sec = tick.timestamp / 1000;
@@ -192,7 +190,6 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
                 features[11] = z_scores[11].update(price_to_mean, 1000.0) as f32;
 
                 if let Ok((sig_type, conf)) = model.predict(&features) {
-                    // 🔥 CERRAHİ: Kendi ürettiği tetiği (Threshold) kullanıyor!
                     if sig_type != SignalType::Hold && conf > ai_confidence_threshold {
                         let signal = TradeSignal {
                             symbol: symbol.to_string(),
@@ -215,11 +212,10 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
                             } else {
                                 "SELL"
                             };
-
                             let exec_price = if side == "BUY" {
-                                tick.price * (1.0 + base_slippage_pct)
+                                tick.price * (1.0 + BASE_SLIPPAGE_PCT)
                             } else {
-                                tick.price * (1.0 - base_slippage_pct)
+                                tick.price * (1.0 - BASE_SLIPPAGE_PCT)
                             };
 
                             risk_engine.process_execution(
@@ -229,7 +225,7 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
                                 qty,
                                 tick.timestamp,
                             );
-                            balance -= (exec_price * qty) * fee_rate;
+                            balance -= (exec_price * qty) * FEE_RATE;
                         }
                     }
                 }
@@ -252,16 +248,16 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
         let close_orders = risk_engine.check_tp_sl(&current_prices, tick.timestamp);
         for (sym, side, qty, price) in close_orders {
             let exec_price = if side == "BUY" {
-                price * (1.0 + base_slippage_pct)
+                price * (1.0 + BASE_SLIPPAGE_PCT)
             } else {
-                price * (1.0 - base_slippage_pct)
+                price * (1.0 - BASE_SLIPPAGE_PCT)
             };
             let realized =
                 risk_engine.process_execution(&sym, side, exec_price, qty, tick.timestamp);
-            let net_pnl = realized - ((exec_price * qty) * fee_rate);
+            let net_pnl = realized - ((exec_price * qty) * FEE_RATE);
 
             balance += net_pnl;
-            returns.push(net_pnl / 1000.0);
+            returns.push(net_pnl / INITIAL_BALANCE);
             trade_count += 1;
 
             if net_pnl > 0.0 {
@@ -282,13 +278,11 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
     } else {
         0.0
     };
-
     let win_rate = if trade_count > 0 {
         (winning_trades as f64 / trade_count as f64) * 100.0
     } else {
         0.0
     };
-
     let profit_factor = if gross_loss > 0.0 {
         gross_profit / gross_loss
     } else if gross_profit > 0.0 {
@@ -298,7 +292,7 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
     };
 
     SimulationResult {
-        pnl: balance - 1000.0,
+        pnl: balance - INITIAL_BALANCE,
         sharpe: calculate_sharpe(&returns),
         max_dd,
         trades: trade_count,

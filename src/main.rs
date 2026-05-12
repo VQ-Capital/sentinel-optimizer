@@ -7,12 +7,15 @@ use serde::{Deserialize, Serialize};
 use tracing::{info, warn};
 
 mod audit;
-mod simulator;
+mod settings;
+mod simulator; // 🔥 YENİ: Ayar modülü projeye dahil edildi
+
 use audit::AuditEngine;
-use simulator::{run_simulation, HistoricalTick};
+use settings::*;
+use simulator::{run_simulation, HistoricalTick}; // Tüm ayarları içeri aktar
 
 #[derive(Parser, Debug)]
-#[command(author, version, about = "VQ-Capital V15.4 Omni-Revolution", long_about = None)]
+#[command(author, version, about = "VQ-Capital V16.0 Constitution", long_about = None)]
 struct Args {
     #[arg(
         short,
@@ -45,22 +48,20 @@ pub struct Genome {
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
-    info!("🧬 VQ-CAPITAL V15.4 OMNI-REVOLUTION ENGINE BAŞLATILIYOR...");
+    info!("🧬 VQ-CAPITAL V16.0 CONSTITUTION ENGINE BAŞLATILIYOR...");
 
     let args = Args::parse();
     let audit = AuditEngine::new();
 
     let _ = audit.initialize_csv();
 
-    println!("\n=======================================================");
-    println!("🧪 EXPERIMENT CONFIGURATION (DENEY PARAMETRELERİ)");
-    println!("=======================================================");
-    println!("📍 Target Symbol : {}", args.symbol);
-    println!("📂 Dataset Path  : {}", args.csv_file_path);
-    println!("🧬 Generations   : {}", args.generations);
-    println!("👥 Population    : {}", args.population);
-    println!("⚙️ Fitness Rule  : Asymmetric Profit Reward & Multi-Point Extinction");
-    println!("=======================================================\n");
+    // 🔥 DENETÇİ MANİFESTOSU EKRANA BASILIYOR
+    settings::print_experiment_manifest(
+        &args.symbol,
+        &args.csv_file_path,
+        args.generations,
+        args.population,
+    );
 
     let mut reader = csv::ReaderBuilder::new()
         .has_headers(true)
@@ -72,7 +73,6 @@ fn main() -> Result<()> {
     let mut population: Vec<Genome> = (0..args.population)
         .map(|_| create_random_genome())
         .collect();
-
     let mut best_all_time = population[0].clone();
     best_all_time.fitness = f64::NEG_INFINITY;
     let mut has_loaded_memory = false;
@@ -89,8 +89,7 @@ fn main() -> Result<()> {
     }
 
     let mut stagnation_counter = 0;
-    // 🔥 CERRAHİ: Mutasyon tabanı %15'e çıkarıldı. Genler çok daha hızlı değişecek.
-    let mut current_mutation_rate = 0.15f32;
+    let mut current_mutation_rate = MUTATION_BASE_RATE;
 
     for gen in 1..=args.generations {
         let start_time = std::time::Instant::now();
@@ -120,29 +119,29 @@ fn main() -> Result<()> {
                 .partial_cmp(&a.fitness)
                 .unwrap_or(std::cmp::Ordering::Equal)
         });
-
         let gen_best = &population[0];
         let mut is_record = false;
-
         let is_first_run_of_loaded = has_loaded_memory && gen == 1;
 
         if gen_best.fitness > (best_all_time.fitness + 0.1) || is_first_run_of_loaded {
             best_all_time = gen_best.clone();
             stagnation_counter = 0;
-            current_mutation_rate = 0.15; // Rekor gelince normale dön
+            current_mutation_rate = MUTATION_BASE_RATE;
             is_record = true;
-
             if !is_first_run_of_loaded {
                 let _ = audit.save_record_break(&best_all_time);
             }
         } else {
             stagnation_counter += 1;
-            if stagnation_counter > 5 {
-                // 🔥 CERRAHİ: Plato toleransı 5 nesile indirildi! Acımasız hız.
-                warn!("🌋 [MASS EXTINCTION] Stagnation! %95 Nüfus imha ediliyor.");
-                current_mutation_rate = 0.50; // %50 Multi-point kaotik mutasyon
+            if stagnation_counter > STAGNATION_LIMIT {
+                warn!(
+                    "🌋 [MASS EXTINCTION] Stagnation! Nüfusun %{} imha ediliyor.",
+                    EXTINCTION_DEATH_RATE * 100.0
+                );
+                current_mutation_rate = MUTATION_CATACLYSM_RATE;
             } else {
-                current_mutation_rate = (current_mutation_rate + 0.05).min(0.40);
+                current_mutation_rate =
+                    (current_mutation_rate + 0.05).min(MUTATION_CATACLYSM_RATE - 0.1);
             }
         }
 
@@ -153,17 +152,15 @@ fn main() -> Result<()> {
             &population,
             args.population,
             current_mutation_rate,
-            stagnation_counter > 5,
+            stagnation_counter > STAGNATION_LIMIT,
         );
-
-        if stagnation_counter > 5 {
+        if stagnation_counter > STAGNATION_LIMIT {
             stagnation_counter = 0;
         }
     }
     Ok(())
 }
 
-// 🛡️ V15.4 ASİMETRİK ÖDÜL FITNESS (The Kutsal Kâse)
 fn calculate_fitness(
     pnl: f64,
     sharpe: f64,
@@ -172,53 +169,37 @@ fn calculate_fitness(
     win_rate: f64,
     profit_factor: f64,
 ) -> f64 {
-    // 1. ÖLÜM SINIRLARI
-    if trades < 50 {
-        return -2_000_000.0; // Keskin nişancılara af yok. En az 50 işlem!
+    // Kurallar settings'den geliyor
+    if trades < MIN_REQUIRED_TRADES {
+        return -2_000_000.0 - ((MIN_REQUIRED_TRADES - trades) as f64 * 100.0);
     }
-    if max_dd >= 40.0 {
-        return -1_000_000.0; // Sermaye erimesi
+    if max_dd >= MAX_ALLOWED_DD {
+        return -1_000_000.0;
     }
 
     let mut fitness = 0.0;
 
-    // 2. İSTATİSTİKSEL GEÇERLİLİK
-    if trades < 250 {
-        fitness -= (250 - trades) as f64 * 500.0;
-    } else if trades > 2500 {
-        fitness -= (trades - 2500) as f64 * 20.0; // Overtrading komisyon israfı
-    }
-
-    // 🔥 3. KAZANMA ORANI (ASİMETRİK ÖDÜL)
-    if win_rate >= 45.0 {
-        fitness += 1_000_000.0; // Mükemmel WinRate Barajı Aşıldı = İlah Puanı
-        fitness += (win_rate - 45.0) * 100_000.0;
-    } else if win_rate < 30.0 {
-        fitness -= (30.0 - win_rate) * 5000.0; // Çöp WinRate cezası
+    if win_rate >= TARGET_WIN_RATE {
+        fitness += 500_000.0 + ((win_rate - TARGET_WIN_RATE) * 10_000.0);
     } else {
-        fitness += win_rate * 100.0; // Gelişim teşviki
+        fitness -= (TARGET_WIN_RATE - win_rate) * 5000.0;
     }
 
-    // 🔥 4. KÂR ÇARPANI (PF KUTSAL KÂSESİ)
-    if profit_factor >= 1.0 {
-        fitness += 5_000_000.0; // KÂR EDEN STRATEJİ KRALLIĞA ÇIKAR!
-        fitness += profit_factor * 500_000.0;
+    if profit_factor >= TARGET_PROFIT_FACTOR {
+        fitness += 1_000_000.0 + (profit_factor * 100_000.0);
     } else {
-        fitness -= (1.0 - profit_factor) * 10_000.0; // Kâr edemeyen ağır cezalandırılır
+        fitness -= (TARGET_PROFIT_FACTOR - profit_factor) * 20_000.0;
     }
 
-    // 🔥 5. PNL ASİMETRİSİ
     if pnl > 0.0 {
-        fitness += pnl * 500_000.0; // Kârın her doları paha biçilemez
+        fitness += pnl * 100_000.0;
     } else {
-        fitness += pnl * 50.0; // Zarar edenin sadece cüzdanı eksilir (Hızlıca kâra dönmesi için hafif ceza)
+        fitness += pnl * 10.0;
     }
-
-    // 6. RİSK VE GÜVENLİK
     if sharpe > 0.0 {
         fitness += sharpe * 5000.0;
     }
-    fitness -= max_dd * 1000.0;
+    fitness -= max_dd * 5000.0;
 
     fitness
 }
@@ -231,17 +212,16 @@ fn create_random_genome() -> Genome {
         dna.push(rng.gen_range(-1.0..1.0));
     }
 
-    dna.push(rng.gen_range(-0.5..0.2)); // Hold Bias (İşlem yapmaya itmek için negatif)
-    dna.push(rng.gen_range(0.0..1.0)); // Buy Bias
-    dna.push(rng.gen_range(0.0..1.0)); // Sell Bias
+    dna.push(rng.gen_range(-0.8..-0.2)); // Hold Bias
+    dna.push(rng.gen_range(0.2..1.0)); // Buy Bias
+    dna.push(rng.gen_range(0.2..1.0)); // Sell Bias
 
-    dna.push(rng.gen_range(0.005..0.040)); // TP
-    dna.push(rng.gen_range(0.003..0.020)); // SL
-    dna.push(rng.gen_range(500.0..2000.0)); // Cooldown (Daha hızlı işlem açsın)
+    // Genetik sınırlar settings'den okunur
+    dna.push(rng.gen_range(DNA_TP_MIN..DNA_TP_MAX));
+    dna.push(rng.gen_range(DNA_SL_MIN..DNA_SL_MAX));
+    dna.push(rng.gen_range(DNA_COOLDOWN_MIN..DNA_COOLDOWN_MAX));
     dna.push(rng.gen_range(0.01..0.05)); // Risk
-
-    // Confidence (0.40 - 0.65) => Tetiğe aşırı rahat basacak, korkaklık yok!
-    dna.push(rng.gen_range(0.40..0.65));
+    dna.push(rng.gen_range(DNA_CONFIDENCE_MIN..DNA_CONFIDENCE_MAX));
 
     Genome {
         weights: dna,
@@ -265,7 +245,6 @@ fn evolve_population(
     let mut new_pop = Vec::with_capacity(total_size);
     let mut rng = rand::thread_rng();
 
-    // 🔥 GERÇEK YOK OLUŞ: Kilitlenme varsa sadece EN İYİ 1 KİŞİ yaşar, Elitler bile imha edilir.
     let elite_count = if is_cataclysm {
         1
     } else {
@@ -273,9 +252,8 @@ fn evolve_population(
     };
     new_pop.extend_from_slice(&current_pop[0..elite_count]);
 
-    // Katliam varsa Nüfusun %95'i uzaydan (rastgele) gelir!
     let random_injection = if is_cataclysm {
-        (total_size as f32 * 0.95) as usize
+        (total_size as f32 * EXTINCTION_DEATH_RATE) as usize
     } else {
         (total_size as f32 * 0.15) as usize
     };
@@ -292,41 +270,37 @@ fn evolve_population(
                 p2.weights[i]
             };
 
-            // Sign Flip Mutation (Ters İşlem Hatasını Çözmek İçin %5 İhtimal)
             if i < 39 && rng.gen_bool(0.05) {
                 gene = -gene;
             }
 
             if rng.gen_bool(mut_rate as f64) {
-                // Multi-Point Genlik: Mutasyon daha sert!
                 let severity = if is_cataclysm { 2.0 } else { 1.0 };
-
                 if i < 36 {
                     gene += rng.gen_range(-0.5..0.5) * severity;
                 } else if (36..39).contains(&i) {
-                    gene += rng.gen_range(-0.2..0.2) * severity;
+                    gene += rng.gen_range(-0.3..0.3) * severity;
                 } else if i == 39 || i == 40 {
-                    gene += rng.gen_range(-0.002..0.002) * severity;
+                    gene += rng.gen_range(-0.001..0.001) * severity;
                 } else if i == 41 {
-                    gene += rng.gen_range(-200.0..200.0) * severity;
+                    gene += rng.gen_range(-100.0..100.0) * severity;
                 } else if i == 43 {
-                    gene += rng.gen_range(-0.03..0.03) * severity;
+                    gene += rng.gen_range(-0.02..0.02) * severity;
                 } else {
-                    gene += rng.gen_range(-0.01..0.01);
+                    gene += rng.gen_range(-0.005..0.005);
                 }
             }
 
-            // Clamp (Sınırlar)
             if i == 39 {
-                gene = gene.clamp(0.005, 0.05);
+                gene = gene.clamp(DNA_TP_MIN, DNA_TP_MAX);
             } else if i == 40 {
-                gene = gene.clamp(0.003, 0.03);
+                gene = gene.clamp(DNA_SL_MIN, DNA_SL_MAX);
             } else if i == 41 {
-                gene = gene.clamp(100.0, 30000.0);
+                gene = gene.clamp(DNA_COOLDOWN_MIN, DNA_COOLDOWN_MAX);
             } else if i == 42 {
                 gene = gene.clamp(0.01, 0.05);
             } else if i == 43 {
-                gene = gene.clamp(0.40, 0.70); // 🔥 Sınır İndi: Aşırı emin olup bekleyemez!
+                gene = gene.clamp(DNA_CONFIDENCE_MIN, DNA_CONFIDENCE_MAX);
             } else if (36..39).contains(&i) {
                 gene = gene.clamp(-1.0, 1.0);
             } else {
@@ -351,6 +325,5 @@ fn evolve_population(
     while new_pop.len() < total_size {
         new_pop.push(create_random_genome());
     }
-
     new_pop
 }
