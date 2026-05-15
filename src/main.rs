@@ -8,14 +8,14 @@ use tracing::{info, warn};
 
 mod audit;
 mod settings;
-mod simulator; // 🔥 YENİ: Ayar modülü projeye dahil edildi
+mod simulator;
 
 use audit::AuditEngine;
 use settings::*;
-use simulator::{run_simulation, HistoricalTick}; // Tüm ayarları içeri aktar
+use simulator::{run_simulation, HistoricalTick};
 
 #[derive(Parser, Debug)]
-#[command(author, version, about = "VQ-Capital V16.0 Constitution", long_about = None)]
+#[command(author, version, about = "VQ-Capital V16.1 Constitution", long_about = None)]
 struct Args {
     #[arg(
         short,
@@ -48,14 +48,13 @@ pub struct Genome {
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
-    info!("🧬 VQ-CAPITAL V16.0 CONSTITUTION ENGINE BAŞLATILIYOR...");
+    info!("🧬 VQ-CAPITAL V16.1 CONSTITUTION ENGINE BAŞLATILIYOR...");
 
     let args = Args::parse();
     let audit = AuditEngine::new();
 
     let _ = audit.initialize_csv();
 
-    // 🔥 DENETÇİ MANİFESTOSU EKRANA BASILIYOR
     settings::print_experiment_manifest(
         &args.symbol,
         &args.csv_file_path,
@@ -166,42 +165,38 @@ fn calculate_fitness(
     sharpe: f64,
     max_dd: f64,
     trades: usize,
-    win_rate: f64,
+    _win_rate: f64,
     profit_factor: f64,
 ) -> f64 {
-    // Kurallar settings'den geliyor
+    // 🔥 CERRAHİ: Denetçi Raporlarına İstinaden Fitness Fonksiyonu Kökten Değişti
+    // Sistemin "İşlem yapmayarak kayıplardan kaçma" (Cowardice) hatası giderildi.
+
     if trades < MIN_REQUIRED_TRADES {
-        return -2_000_000.0 - ((MIN_REQUIRED_TRADES - trades) as f64 * 100.0);
+        // Yeterli işlem yapmayan genom acımasızca elenir (EV hesaplanamaz)
+        return -10_000_000.0 - ((MIN_REQUIRED_TRADES.saturating_sub(trades)) as f64 * 1000.0);
     }
+
     if max_dd >= MAX_ALLOWED_DD {
-        return -1_000_000.0;
+        // Patlama riski taşıyan genom acımasızca elenir
+        return -5_000_000.0 - (max_dd * 10_000.0);
     }
 
-    let mut fitness = 0.0;
-
-    if win_rate >= TARGET_WIN_RATE {
-        fitness += 500_000.0 + ((win_rate - TARGET_WIN_RATE) * 10_000.0);
-    } else {
-        fitness -= (TARGET_WIN_RATE - win_rate) * 5000.0;
+    if profit_factor < 1.0 {
+        // Eğer strateji para kaybediyorsa (PF < 1.0), asla pozitif fitness üretemez!
+        // Zarar miktarı ve Sharpe ile cezalandır.
+        return (pnl * 1000.0) + (sharpe * 1000.0) - ((1.0 - profit_factor) * 50_000.0);
     }
 
-    if profit_factor >= TARGET_PROFIT_FACTOR {
-        fitness += 1_000_000.0 + (profit_factor * 100_000.0);
-    } else {
-        fitness -= (TARGET_PROFIT_FACTOR - profit_factor) * 20_000.0;
-    }
+    // YALNIZCA KÂR EDEN STRATEJİLER BURAYA ULAŞABİLİR
+    // EV (Beklenen Değer) ve Sharpe bazlı üstel ödül
+    let expected_value_per_trade = pnl / (trades as f64);
 
-    if pnl > 0.0 {
-        fitness += pnl * 100_000.0;
-    } else {
-        fitness += pnl * 10.0;
-    }
-    if sharpe > 0.0 {
-        fitness += sharpe * 5000.0;
-    }
-    fitness -= max_dd * 5000.0;
+    let base_score = pnl * 5000.0;
+    let ev_bonus = expected_value_per_trade * 1_000_000.0; // Kaliteli işlemleri ödüllendir
+    let sharpe_bonus = sharpe * 50_000.0; // İstikrarlı getiri eğrisi
+    let pf_bonus = profit_factor * 20_000.0; // Brüt kâr/zarar dominasyonu
 
-    fitness
+    base_score + ev_bonus + sharpe_bonus + pf_bonus - (max_dd * 5000.0)
 }
 
 fn create_random_genome() -> Genome {
@@ -245,11 +240,13 @@ fn evolve_population(
     let mut new_pop = Vec::with_capacity(total_size);
     let mut rng = rand::thread_rng();
 
+    // 🔥 CERRAHİ: Elitizm güçlendirildi. Kıyamet bile kopsa en iyiler korunur.
     let elite_count = if is_cataclysm {
-        1
+        (total_size / 20).max(2) // Kıyamette bile en az %5'i koru
     } else {
-        (total_size / 20).max(2)
+        (total_size / 10).max(2) // Normal durumda %10'u koru
     };
+
     new_pop.extend_from_slice(&current_pop[0..elite_count]);
 
     let random_injection = if is_cataclysm {
