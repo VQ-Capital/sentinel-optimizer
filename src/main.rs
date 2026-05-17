@@ -15,7 +15,7 @@ use settings::*;
 use simulator::{run_simulation, HistoricalTick};
 
 #[derive(Parser, Debug)]
-#[command(author, version, about = "VQ-Capital V16.1 Constitution", long_about = None)]
+#[command(author, version, about = "VQ-Capital V17.0 Non-Linear MLP Engine", long_about = None)]
 struct Args {
     #[arg(
         short,
@@ -48,7 +48,7 @@ pub struct Genome {
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
-    info!("🧬 VQ-CAPITAL V16.1 CONSTITUTION ENGINE BAŞLATILIYOR...");
+    info!("🧬 VQ-CAPITAL V17.0 NON-LINEAR MLP ENGINE BAŞLATILIYOR...");
 
     let args = Args::parse();
     let audit = AuditEngine::new();
@@ -77,14 +77,14 @@ fn main() -> Result<()> {
     let mut has_loaded_memory = false;
 
     if let Some(alpha_dna) = audit.load_best_genome() {
-        let mut fixed_dna = alpha_dna.clone();
-        if fixed_dna.weights.len() == 43 {
-            fixed_dna.weights.push(0.50);
+        if alpha_dna.weights.len() == 136 {
+            info!("🧠 Hafıza Geri Yüklendi. Alpha DNA sisteme aşılandı.");
+            population[0] = alpha_dna.clone();
+            best_all_time = alpha_dna;
+            has_loaded_memory = true;
+        } else {
+            warn!("⚠️ Eski nesil DNA tespit edildi (Uzunluk: {}). Yeni MLP mimarisi (136 Gen) için sıfırdan başlanıyor.", alpha_dna.weights.len());
         }
-        info!("🧠 Hafıza Geri Yüklendi. Alpha DNA sisteme aşılandı.");
-        population[0] = fixed_dna.clone();
-        best_all_time = fixed_dna;
-        has_loaded_memory = true;
     }
 
     let mut stagnation_counter = 0;
@@ -168,54 +168,42 @@ fn calculate_fitness(
     _win_rate: f64,
     profit_factor: f64,
 ) -> f64 {
-    // 🔥 CERRAHİ: Denetçi Raporlarına İstinaden Fitness Fonksiyonu Kökten Değişti
-    // Sistemin "İşlem yapmayarak kayıplardan kaçma" (Cowardice) hatası giderildi.
-
     if trades < MIN_REQUIRED_TRADES {
-        // Yeterli işlem yapmayan genom acımasızca elenir (EV hesaplanamaz)
         return -10_000_000.0 - ((MIN_REQUIRED_TRADES.saturating_sub(trades)) as f64 * 1000.0);
     }
-
     if max_dd >= MAX_ALLOWED_DD {
-        // Patlama riski taşıyan genom acımasızca elenir
         return -5_000_000.0 - (max_dd * 10_000.0);
     }
-
     if profit_factor < 1.0 {
-        // Eğer strateji para kaybediyorsa (PF < 1.0), asla pozitif fitness üretemez!
-        // Zarar miktarı ve Sharpe ile cezalandır.
         return (pnl * 1000.0) + (sharpe * 1000.0) - ((1.0 - profit_factor) * 50_000.0);
     }
-
-    // YALNIZCA KÂR EDEN STRATEJİLER BURAYA ULAŞABİLİR
-    // EV (Beklenen Değer) ve Sharpe bazlı üstel ödül
     let expected_value_per_trade = pnl / (trades as f64);
-
     let base_score = pnl * 5000.0;
-    let ev_bonus = expected_value_per_trade * 1_000_000.0; // Kaliteli işlemleri ödüllendir
-    let sharpe_bonus = sharpe * 50_000.0; // İstikrarlı getiri eğrisi
-    let pf_bonus = profit_factor * 20_000.0; // Brüt kâr/zarar dominasyonu
-
+    let ev_bonus = expected_value_per_trade * 1_000_000.0;
+    let sharpe_bonus = sharpe * 50_000.0;
+    let pf_bonus = profit_factor * 20_000.0;
     base_score + ev_bonus + sharpe_bonus + pf_bonus - (max_dd * 5000.0)
 }
 
 fn create_random_genome() -> Genome {
     let mut rng = rand::thread_rng();
-    let mut dna: Vec<f32> = Vec::with_capacity(44);
+    let mut dna: Vec<f32> = Vec::with_capacity(136);
 
-    for _ in 0..36 {
+    // İlk 128 gen (w1: 96, b1: 8, w2: 24)
+    for _ in 0..128 {
         dna.push(rng.gen_range(-1.0..1.0));
     }
 
-    dna.push(rng.gen_range(-0.8..-0.2)); // Hold Bias
-    dna.push(rng.gen_range(0.2..1.0)); // Buy Bias
-    dna.push(rng.gen_range(0.2..1.0)); // Sell Bias
+    // b2: 3 Çıktı nöronunun yanlılıkları (Hold, Buy, Sell)
+    dna.push(rng.gen_range(-0.8..-0.2));
+    dna.push(rng.gen_range(0.2..1.0));
+    dna.push(rng.gen_range(0.2..1.0));
 
-    // Genetik sınırlar settings'den okunur
+    // Risk ve Genetik Parametreler (131..136)
     dna.push(rng.gen_range(DNA_TP_MIN..DNA_TP_MAX));
     dna.push(rng.gen_range(DNA_SL_MIN..DNA_SL_MAX));
     dna.push(rng.gen_range(DNA_COOLDOWN_MIN..DNA_COOLDOWN_MAX));
-    dna.push(rng.gen_range(0.01..0.05)); // Risk
+    dna.push(rng.gen_range(0.01..0.05));
     dna.push(rng.gen_range(DNA_CONFIDENCE_MIN..DNA_CONFIDENCE_MAX));
 
     Genome {
@@ -240,11 +228,10 @@ fn evolve_population(
     let mut new_pop = Vec::with_capacity(total_size);
     let mut rng = rand::thread_rng();
 
-    // 🔥 CERRAHİ: Elitizm güçlendirildi. Kıyamet bile kopsa en iyiler korunur.
     let elite_count = if is_cataclysm {
-        (total_size / 20).max(2) // Kıyamette bile en az %5'i koru
+        (total_size / 20).max(2)
     } else {
-        (total_size / 10).max(2) // Normal durumda %10'u koru
+        (total_size / 10).max(2)
     };
 
     new_pop.extend_from_slice(&current_pop[0..elite_count]);
@@ -259,46 +246,46 @@ fn evolve_population(
         let p1 = &current_pop[rng.gen_range(0..elite_count * 2)];
         let p2 = &current_pop[rng.gen_range(0..elite_count * 2)];
 
-        let mut child_dna = Vec::with_capacity(44);
-        for i in 0..44 {
+        let mut child_dna = Vec::with_capacity(136);
+        for i in 0..136 {
             let mut gene = if rng.gen_bool(0.5) {
                 p1.weights[i]
             } else {
                 p2.weights[i]
             };
 
-            if i < 39 && rng.gen_bool(0.05) {
+            if i < 131 && rng.gen_bool(0.05) {
                 gene = -gene;
             }
 
             if rng.gen_bool(mut_rate as f64) {
                 let severity = if is_cataclysm { 2.0 } else { 1.0 };
-                if i < 36 {
+                if i < 128 {
                     gene += rng.gen_range(-0.5..0.5) * severity;
-                } else if (36..39).contains(&i) {
+                } else if (128..131).contains(&i) {
                     gene += rng.gen_range(-0.3..0.3) * severity;
-                } else if i == 39 || i == 40 {
+                } else if i == 131 || i == 132 {
                     gene += rng.gen_range(-0.001..0.001) * severity;
-                } else if i == 41 {
+                } else if i == 133 {
                     gene += rng.gen_range(-100.0..100.0) * severity;
-                } else if i == 43 {
+                } else if i == 135 {
                     gene += rng.gen_range(-0.02..0.02) * severity;
                 } else {
                     gene += rng.gen_range(-0.005..0.005);
                 }
             }
 
-            if i == 39 {
+            if i == 131 {
                 gene = gene.clamp(DNA_TP_MIN, DNA_TP_MAX);
-            } else if i == 40 {
+            } else if i == 132 {
                 gene = gene.clamp(DNA_SL_MIN, DNA_SL_MAX);
-            } else if i == 41 {
+            } else if i == 133 {
                 gene = gene.clamp(DNA_COOLDOWN_MIN, DNA_COOLDOWN_MAX);
-            } else if i == 42 {
+            } else if i == 134 {
                 gene = gene.clamp(0.01, 0.05);
-            } else if i == 43 {
+            } else if i == 135 {
                 gene = gene.clamp(DNA_CONFIDENCE_MIN, DNA_CONFIDENCE_MAX);
-            } else if (36..39).contains(&i) {
+            } else if (128..131).contains(&i) {
                 gene = gene.clamp(-1.0, 1.0);
             } else {
                 gene = gene.clamp(-3.0, 3.0);

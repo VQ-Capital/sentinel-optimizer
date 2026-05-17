@@ -1,16 +1,14 @@
+#!/bin/bash
 # ========== DOSYA: sentinel-optimizer/scripts/inject_dna.sh ==========
-#!/bin/sh
 set -e
 
 echo "🧬 [MLOps] Alpha DNA Enjeksiyon Protokolü Başlatıldı..."
 
-# JQ kontrolü ve otomatik kurulum (Ubuntu/Debian için güvenli)
 if ! command -v jq > /dev/null 2>&1; then
     echo "⚙️ 'jq' bulunamadı, sisteme otomatik olarak kuruluyor..."
     sudo apt-get update -y && sudo apt-get install -y jq
 fi
 
-# Betiğin nerede olduğunu güvenli ve evrensel bir şekilde bulur (POSIX uyumlu)
 DIR="$(cd "$(dirname "$0")" && pwd)"
 ORG_ROOT="$DIR/../.."
 
@@ -27,28 +25,46 @@ echo "🔍 En iyi Genom analiz ediliyor..."
 FITNESS=$(jq -r '.[0].fitness' "$HOF_FILE")
 PNL=$(jq -r '.[0].pnl' "$HOF_FILE")
 
-# Risk Parametrelerini çekiyoruz (Yüksek Hassasiyet)
-TP=$(jq -r '.[0].weights[39]' "$HOF_FILE")
-SL=$(jq -r '.[0].weights[40]' "$HOF_FILE")
-COOLDOWN=$(jq -r '.[0].weights[41] | round' "$HOF_FILE")
-RISK=$(jq -r '.[0].weights[42]' "$HOF_FILE")
+# 🔥 CERRAHİ: Kırmızı Çizgi Koruması! Zarar eden modeli reddet.
+if (( $(echo "$PNL <= 0.0" | bc -l) )); then
+    echo "🚨 KRİTİK İPTAL: DNA PnL negatif ($PNL$). Zarar eden model Production'a pushlanamaz!"
+    exit 1
+fi
 
-echo "💉 Yeni DNA weights.rs dosyasına yazılıyor..."
+# Yeni MLP DNA Yapısı İçin Risk Parametrelerini Çekiyoruz
+TP=$(jq -r '.[0].weights[131]' "$HOF_FILE")
+SL=$(jq -r '.[0].weights[132]' "$HOF_FILE")
+COOLDOWN=$(jq -r '.[0].weights[133] | round' "$HOF_FILE")
+RISK=$(jq -r '.[0].weights[134]' "$HOF_FILE")
+
+echo "💉 Yeni MLP DNA (136 Gen) weights.rs dosyasına yazılıyor..."
 
 cat <<EOF > "$WEIGHTS_FILE"
 // ========== DOSYA: sentinel-inference/src/weights.rs ==========
 // 🚀 UYARI: Bu dosya sentinel-optimizer tarafından OTOMATİK ENJEKTE EDİLMİŞTİR.
 // 🧬 FITNESS: $FITNESS | PNL: \$$PNL
 
-pub fn get_dna_weights() -> Vec<f32> {
+pub fn get_dna_w1() -> Vec<f32> {
     vec![
-$(jq -r '.[0].weights[0:36] | _nwise(3) | "        \(.[0]), \(.[1]), \(.[2]),"' "$HOF_FILE")
+$(jq -r '.[0].weights[0:96] | _nwise(3) | "        \(.[0]), \(.[1]), \(.[2]),"' "$HOF_FILE")
     ]
 }
 
-pub fn get_dna_biases() -> Vec<f32> {
+pub fn get_dna_b1() -> Vec<f32> {
     vec![
-$(jq -r '.[0].weights[36:39] | "        \(.[0]), \(.[1]), \(.[2]),"' "$HOF_FILE")
+$(jq -r '.[0].weights[96:104] | _nwise(4) | "        \(.[0]), \(.[1]), \(.[2]), \(.[3]),"' "$HOF_FILE")
+    ]
+}
+
+pub fn get_dna_w2() -> Vec<f32> {
+    vec![
+$(jq -r '.[0].weights[104:128] | _nwise(3) | "        \(.[0]), \(.[1]), \(.[2]),"' "$HOF_FILE")
+    ]
+}
+
+pub fn get_dna_b2() -> Vec<f32> {
+    vec![
+$(jq -r '.[0].weights[128:131] | "        \(.[0]), \(.[1]), \(.[2]),"' "$HOF_FILE")
     ]
 }
 EOF
@@ -76,7 +92,7 @@ git -C "$ORG_ROOT/sentinel-infra" add .env || true
 if git diff --staged --quiet; then
     echo "⚠️ Yeni DNA mevcut DNA ile aynı. Commit işlemine gerek yok."
 else
-    git commit -m "chore(model): 🧬 inject new alpha DNA [Fit: $FITNESS, PnL: $PNL]"
+    git commit -m "chore(model): 🧬 inject new MLP alpha DNA [Fit: $FITNESS, PnL: $PNL]"
     git push origin main
     echo "🦅 GÖREV TAMAMLANDI! GitHub Actions şu an yeni imajı derliyor."
 fi

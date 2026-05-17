@@ -5,7 +5,7 @@ use sentinel_core::math::zscore::OnlineZScore;
 use sentinel_core::risk::engine::{RiskConfig, RiskEngine};
 use sentinel_core::types::{SignalType, TradeSignal};
 use serde::{Deserialize, Deserializer};
-use std::collections::{HashMap, VecDeque}; // 🔥 YENİ: Ayarları içeri alıyoruz
+use std::collections::{HashMap, VecDeque};
 
 fn deserialize_binance_bool<'de, D>(deserializer: D) -> Result<bool, D::Error>
 where
@@ -50,28 +50,31 @@ struct Bucket {
 }
 
 pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> SimulationResult {
-    let weights = dna[0..36].to_vec();
-    let biases = dna[36..39].to_vec();
+    // 🧬 DNA ÇÖZÜMLEME (Total 136)
+    let w1 = dna[0..96].to_vec();
+    let b1 = dna[96..104].to_vec();
+    let w2 = dna[104..128].to_vec();
+    let b2 = dna[128..131].to_vec();
 
-    let model = match PureMathModel::new(weights, biases) {
+    let model = match PureMathModel::new(w1, b1, w2, b2) {
         Ok(m) => m,
         Err(_) => return dead_result(),
     };
 
     let ai_confidence_threshold =
-        (dna[43] as f64).clamp(DNA_CONFIDENCE_MIN as f64, DNA_CONFIDENCE_MAX as f64);
+        (dna[135] as f64).clamp(DNA_CONFIDENCE_MIN as f64, DNA_CONFIDENCE_MAX as f64);
 
     let risk_config = RiskConfig {
         initial_balance: INITIAL_BALANCE,
         max_drawdown_usd: INITIAL_BALANCE * (MAX_ALLOWED_DD / 100.0),
         defensive_drawdown_usd: INITIAL_BALANCE * ((MAX_ALLOWED_DD * 0.8) / 100.0),
-        cooldown_ms: dna[41] as i64,
+        cooldown_ms: dna[133] as i64,
         min_hold_time_ms: 100,
         max_hold_time_ms: 3_600_000,
-        base_risk_pct: (dna[42] as f64).clamp(0.01, 0.05),
+        base_risk_pct: (dna[134] as f64).clamp(0.01, 0.05),
         base_leverage: 1.0,
-        take_profit_pct: (dna[39] as f64).clamp(DNA_TP_MIN as f64, DNA_TP_MAX as f64),
-        stop_loss_pct: (dna[40] as f64).clamp(DNA_SL_MIN as f64, DNA_SL_MAX as f64),
+        take_profit_pct: (dna[131] as f64).clamp(DNA_TP_MIN as f64, DNA_TP_MAX as f64),
+        stop_loss_pct: (dna[132] as f64).clamp(DNA_SL_MIN as f64, DNA_SL_MAX as f64),
     };
 
     let mut risk_engine = RiskEngine::new(risk_config.clone());

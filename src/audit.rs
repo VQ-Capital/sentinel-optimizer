@@ -22,7 +22,7 @@ pub struct AuditRecord {
     pub sl: f32,
     pub risk: f32,
     pub cooldown: f32,
-    pub conf: f32, // 🔥 CERRAHİ: Yeni AI Tetiği
+    pub conf: f32,
     pub time_sec: f32,
     pub is_record: bool,
 }
@@ -54,11 +54,11 @@ impl AuditRecord {
             max_drawdown: best.max_drawdown,
             trades: best.trades,
             mut_rate,
-            tp: best.weights[39],
-            sl: best.weights[40],
-            cooldown: best.weights[41],
-            risk: best.weights[42],
-            conf: best.weights[43], // 🔥 DNA'nın 44. Geni (Index 43)
+            tp: best.weights[131],
+            sl: best.weights[132],
+            cooldown: best.weights[133],
+            risk: best.weights[134],
+            conf: best.weights[135],
             time_sec,
             is_record,
         }
