@@ -15,7 +15,7 @@ use settings::*;
 use simulator::{run_simulation, HistoricalTick};
 
 #[derive(Parser, Debug)]
-#[command(author, version, about = "VQ-Capital V17.0 Non-Linear MLP Engine", long_about = None)]
+#[command(author, version, about = "VQ-Capital V17.1 Non-Linear MLP Engine", long_about = None)]
 struct Args {
     #[arg(
         short,
@@ -48,7 +48,7 @@ pub struct Genome {
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
-    info!("🧬 VQ-CAPITAL V17.0 NON-LINEAR MLP ENGINE BAŞLATILIYOR...");
+    info!("🧬 VQ-CAPITAL V17.1 NON-LINEAR MLP ENGINE BAŞLATILIYOR...");
 
     let args = Args::parse();
     let audit = AuditEngine::new();
@@ -189,15 +189,16 @@ fn create_random_genome() -> Genome {
     let mut rng = rand::thread_rng();
     let mut dna: Vec<f32> = Vec::with_capacity(136);
 
-    // İlk 128 gen (w1: 96, b1: 8, w2: 24)
+    // 🔥 CERRAHİ: Dead ReLU'yu önlemek için ağırlık sınırları daraltıldı (-0.5 ile 0.5)
     for _ in 0..128 {
-        dna.push(rng.gen_range(-1.0..1.0));
+        dna.push(rng.gen_range(-0.5..0.5));
     }
 
     // b2: 3 Çıktı nöronunun yanlılıkları (Hold, Buy, Sell)
-    dna.push(rng.gen_range(-0.8..-0.2));
-    dna.push(rng.gen_range(0.2..1.0));
-    dna.push(rng.gen_range(0.2..1.0));
+    // Hold eğilimini kırmak için Buy/Sell nöronlarına daha yüksek bias veriyoruz
+    dna.push(rng.gen_range(-0.5..0.0)); // Hold
+    dna.push(rng.gen_range(0.1..0.5)); // Buy
+    dna.push(rng.gen_range(0.1..0.5)); // Sell
 
     // Risk ve Genetik Parametreler (131..136)
     dna.push(rng.gen_range(DNA_TP_MIN..DNA_TP_MAX));
@@ -260,16 +261,17 @@ fn evolve_population(
 
             if rng.gen_bool(mut_rate as f64) {
                 let severity = if is_cataclysm { 2.0 } else { 1.0 };
+                // 🔥 CERRAHİ: Mutasyon şiddetleri daraltıldı
                 if i < 128 {
-                    gene += rng.gen_range(-0.5..0.5) * severity;
+                    gene += rng.gen_range(-0.2..0.2) * severity;
                 } else if (128..131).contains(&i) {
-                    gene += rng.gen_range(-0.3..0.3) * severity;
+                    gene += rng.gen_range(-0.1..0.1) * severity;
                 } else if i == 131 || i == 132 {
                     gene += rng.gen_range(-0.001..0.001) * severity;
                 } else if i == 133 {
-                    gene += rng.gen_range(-100.0..100.0) * severity;
+                    gene += rng.gen_range(-50.0..50.0) * severity;
                 } else if i == 135 {
-                    gene += rng.gen_range(-0.02..0.02) * severity;
+                    gene += rng.gen_range(-0.01..0.01) * severity;
                 } else {
                     gene += rng.gen_range(-0.005..0.005);
                 }
