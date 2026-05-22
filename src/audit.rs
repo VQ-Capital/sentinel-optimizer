@@ -1,5 +1,5 @@
 // ========== DOSYA: sentinel-optimizer/src/audit.rs ==========
-use crate::Genome;
+use crate::evolution::Genome; // <-- YENİ EKLENDİ (crate::Genome yerine)
 use anyhow::{Context, Result};
 use chrono::Utc;
 use std::fmt;
