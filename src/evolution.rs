@@ -184,3 +184,6 @@ pub fn evolve_population(
     }
     new_pop
 }
+
+#[cfg(test)]
+mod tests;
