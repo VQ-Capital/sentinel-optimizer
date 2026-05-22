@@ -25,10 +25,10 @@ FITNESS=$(jq -r '.[0].fitness' "$HOF_FILE")
 PNL=$(jq -r '.[0].pnl' "$HOF_FILE")
 
 # 🔥 CERRAHİ: Sadece Altyapı Testi için PnL kontrolünü pasife aldık
-# if (( $(echo "$PNL <= 0.0" | bc -l) )); then
-#    echo "🚨 KRİTİK İPTAL: DNA PnL negatif ($PNL$). Zarar eden model Production'a pushlanamaz!"
-#    exit 1
-# fi
+if (( $(echo "$PNL <= 0.0" | bc -l) )); then
+    echo "🚨 KRİTİK İPTAL: DNA PnL negatif ($PNL$). Zarar eden model Production'a pushlanamaz!"
+    exit 1
+fi
 
 TP=$(jq -r '.[0].weights[131]' "$HOF_FILE")
 SL=$(jq -r '.[0].weights[132]' "$HOF_FILE")
