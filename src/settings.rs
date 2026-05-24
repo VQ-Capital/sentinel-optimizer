@@ -9,19 +9,20 @@ pub const MUTATION_BASE_RATE: f32 = 0.20;
 pub const MUTATION_CATACLYSM_RATE: f32 = 0.70;
 pub const EXTINCTION_DEATH_RATE: f32 = 0.75;
 
-// 🔥 DENETÇİ TAVSİYESİ: EARLY STOPPING
-pub const EARLY_STOP_LIMIT: u32 = 30; // 30 jenerasyon boyunca rekor kırılamazsa eğitimi kes.
+pub const EARLY_STOP_LIMIT: u32 = 30;
 
-pub const MIN_REQUIRED_TRADES: usize = 500;
+// 🔥 QUANT KALİBRASYONU: İşlem zorunluluğu 500'den 150'ye düşürüldü. (Günde ortalama 5 kaliteli işlem)
+pub const MIN_REQUIRED_TRADES: usize = 150;
 pub const MAX_ALLOWED_DD: f64 = 30.0;
 
 pub const TARGET_WIN_RATE: f64 = 40.0;
 pub const TARGET_PROFIT_FACTOR: f64 = 1.1;
 
-pub const DNA_TP_MIN: f32 = 0.002;
-pub const DNA_TP_MAX: f32 = 0.030;
+// 🔥 QUANT KALİBRASYONU: Hedef Kâr (TP) tavanı %3'ten %5'e çıkarıldı. AI daha büyük trendleri kovalayabilecek.
+pub const DNA_TP_MIN: f32 = 0.005;
+pub const DNA_TP_MAX: f32 = 0.050;
 pub const DNA_SL_MIN: f32 = 0.002;
-pub const DNA_SL_MAX: f32 = 0.020;
+pub const DNA_SL_MAX: f32 = 0.025;
 pub const DNA_COOLDOWN_MIN: f32 = 100.0;
 pub const DNA_COOLDOWN_MAX: f32 = 2000.0;
 

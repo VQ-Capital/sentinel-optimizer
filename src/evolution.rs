@@ -18,6 +18,8 @@ pub struct Genome {
     pub profit_factor: f64,
 }
 
+// ========== DOSYA: sentinel-optimizer/src/evolution.rs (Sadece calculate_fitness kısmını güncelle) ==========
+
 pub fn calculate_fitness(
     pnl: f64,
     sharpe: f64,
@@ -26,39 +28,43 @@ pub fn calculate_fitness(
     win_rate: f64,
     profit_factor: f64,
 ) -> f64 {
-    // 1. KORKAKLIK CEZASI: Yeterli işlem yapmayanı acımasızca yok et.
+    // 1. KORKAKLIK CEZASI (Daha yumuşak bir eğim)
     if trades < MIN_REQUIRED_TRADES {
-        return -20_000_000.0 - ((MIN_REQUIRED_TRADES.saturating_sub(trades)) as f64 * 5000.0);
+        let diff = MIN_REQUIRED_TRADES.saturating_sub(trades) as f64;
+        return -50_000.0 - (diff * diff * 100.0); // Karesel ceza, modelin kör olmasını engeller
     }
 
-    // 2. İFLAS CEZASI: Parayı batıranı yok et.
+    // 2. İFLAS CEZASI
     if max_dd >= MAX_ALLOWED_DD {
-        return -10_000_000.0 - (max_dd * 10_000.0);
+        return -100_000.0 - (max_dd * 5000.0);
     }
 
-    // 3. MATEMATİKSEL HEDEFLER CEZASI
+    // 3. MATEMATİKSEL HEDEFLER CEZASI (Karesel Eğim - Gradient Smooting)
     let mut penalty = 0.0;
     if profit_factor < TARGET_PROFIT_FACTOR {
-        penalty += (TARGET_PROFIT_FACTOR - profit_factor) * 100_000.0;
+        let diff = TARGET_PROFIT_FACTOR - profit_factor;
+        penalty += diff * diff * 50_000.0;
     }
     if win_rate < TARGET_WIN_RATE {
-        penalty += (TARGET_WIN_RATE - win_rate) * 5000.0;
+        let diff = TARGET_WIN_RATE - win_rate;
+        penalty += diff * diff * 1000.0;
     }
 
     // 4. AKTİVİTE ÖDÜLÜ
-    let activity_bonus = (trades as f64) * (win_rate / 100.0) * 100.0;
+    let activity_bonus = (trades as f64) * (win_rate / 100.0) * 50.0;
 
     // 5. KARLILIK CEZASI/ÖDÜLÜ
     if pnl < 0.0 {
-        return (pnl * 5000.0) + activity_bonus - penalty;
+        // PnL negatifse, PnL'in kendisine ve cezalara odaklan
+        return (pnl * 2000.0) + activity_bonus - penalty;
     }
 
     // 6. ALPHA (KAR EDEN) MODEL ÖDÜLLENDİRMESİ
-    let pnl_score = pnl * 10_000.0;
-    let sharpe_bonus = sharpe * 50_000.0;
-    let pf_bonus = profit_factor * 30_000.0;
+    let pnl_score = pnl * 5000.0;
+    let sharpe_bonus = sharpe * 20_000.0;
+    let pf_bonus = profit_factor * 20_000.0;
 
-    pnl_score + activity_bonus + sharpe_bonus + pf_bonus - (max_dd * 5000.0) - penalty
+    pnl_score + activity_bonus + sharpe_bonus + pf_bonus - (max_dd * 2000.0) - penalty
 }
 
 pub fn create_random_genome() -> Genome {
@@ -92,6 +98,8 @@ pub fn create_random_genome() -> Genome {
     }
 }
 
+// ========== DOSYA: sentinel-optimizer/src/evolution.rs (SADECE evolve_population kısmını değiştir) ==========
+
 pub fn evolve_population(
     current_pop: &[Genome],
     total_size: usize,
@@ -107,15 +115,18 @@ pub fn evolve_population(
         (total_size / 10).max(2)
     };
 
+    // Elitleri koru
     new_pop.extend_from_slice(&current_pop[0..elite_count]);
 
+    // Kıyamet anında dışarıdan tamamen yeni, rastgele kan enjekte et (Diversity Injection)
     let random_injection = if is_cataclysm {
         (total_size as f32 * EXTINCTION_DEATH_RATE) as usize
     } else {
-        (total_size as f32 * 0.15) as usize
+        (total_size as f32 * 0.10) as usize
     };
 
     while new_pop.len() < total_size - random_injection {
+        // Uniform Crossover (Çaprazlama)
         let p1 = &current_pop[rng.gen_range(0..elite_count * 2)];
         let p2 = &current_pop[rng.gen_range(0..elite_count * 2)];
 
@@ -127,27 +138,37 @@ pub fn evolve_population(
                 p2.weights[i]
             };
 
+            // Gen işaretini tersine çevirme (Sign Flip Mutation)
             if i < 131 && rng.gen_bool(0.05) {
                 gene = -gene;
             }
 
+            // Ağırlık Mutasyonu (Gaussian/Uniform Noise)
             if rng.gen_bool(mut_rate as f64) {
-                let severity = if is_cataclysm { 2.0 } else { 1.0 };
+                let severity = if is_cataclysm { 3.0 } else { 1.0 }; // Kıyamette şiddeti 3x artır
+
                 if i < 128 {
-                    gene += rng.gen_range(-0.2..0.2) * severity;
+                    // Hidden layer ağırlıkları
+                    gene += rng.gen_range(-0.5..0.5) * severity;
                 } else if (128..131).contains(&i) {
-                    gene += rng.gen_range(-0.1..0.1) * severity;
+                    // Bias'lar
+                    gene += rng.gen_range(-0.2..0.2) * severity;
                 } else if i == 131 || i == 132 {
-                    gene += rng.gen_range(-0.001..0.001) * severity;
+                    // TP / SL mutasyonu
+                    gene += rng.gen_range(-0.005..0.005) * severity;
                 } else if i == 133 {
-                    gene += rng.gen_range(-50.0..50.0) * severity;
-                } else if i == 135 {
+                    // Cooldown mutasyonu
+                    gene += rng.gen_range(-100.0..100.0) * severity;
+                } else if i == 134 {
+                    // Risk mutasyonu
                     gene += rng.gen_range(-0.01..0.01) * severity;
-                } else {
-                    gene += rng.gen_range(-0.005..0.005);
+                } else if i == 135 {
+                    // Confidence mutasyonu
+                    gene += rng.gen_range(-0.02..0.02) * severity;
                 }
             }
 
+            // Sınırlandırmalar (Clamping)
             if i == 131 {
                 gene = gene.clamp(DNA_TP_MIN, DNA_TP_MAX);
             } else if i == 132 {
@@ -155,7 +176,7 @@ pub fn evolve_population(
             } else if i == 133 {
                 gene = gene.clamp(DNA_COOLDOWN_MIN, DNA_COOLDOWN_MAX);
             } else if i == 134 {
-                gene = gene.clamp(0.01, 0.05);
+                gene = gene.clamp(0.01, 0.05); // Risk limiti
             } else if i == 135 {
                 gene = gene.clamp(DNA_CONFIDENCE_MIN, DNA_CONFIDENCE_MAX);
             } else if (128..131).contains(&i) {
@@ -179,6 +200,7 @@ pub fn evolve_population(
         });
     }
 
+    // Nüfusun geri kalanını yepyeni rastgele bireylerle doldur
     while new_pop.len() < total_size {
         new_pop.push(create_random_genome());
     }
