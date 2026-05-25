@@ -5,8 +5,9 @@ pub const FEE_RATE: f64 = 0.0002;
 pub const BASE_SLIPPAGE_PCT: f64 = 0.00005;
 
 pub const STAGNATION_LIMIT: u32 = 12;
-pub const MUTATION_BASE_RATE: f32 = 0.20;
-pub const MUTATION_CATACLYSM_RATE: f32 = 0.70;
+// 🔥 QUANT KALİBRASYONU: İnce ayar yapabilmesi için mutasyon oranı %20'den %5'e düşürüldü.
+pub const MUTATION_BASE_RATE: f32 = 0.05;
+pub const MUTATION_CATACLYSM_RATE: f32 = 0.30;
 pub const EXTINCTION_DEATH_RATE: f32 = 0.75;
 
 pub const EARLY_STOP_LIMIT: u32 = 30;
@@ -14,7 +15,6 @@ pub const EARLY_STOP_LIMIT: u32 = 30;
 pub const MIN_REQUIRED_TRADES: usize = 150;
 pub const MAX_ALLOWED_DD: f64 = 30.0;
 
-// 🔥 HEDEFLER DÜŞÜRÜLDÜ (Baskı azaltıldı)
 pub const TARGET_WIN_RATE: f64 = 30.0;
 pub const TARGET_PROFIT_FACTOR: f64 = 1.05;
 
@@ -25,7 +25,6 @@ pub const DNA_SL_MAX: f32 = 0.025;
 pub const DNA_COOLDOWN_MIN: f32 = 100.0;
 pub const DNA_COOLDOWN_MAX: f32 = 2000.0;
 
-// 🔥 CONFIDENCE MARJI GENİŞLETİLDİ (Daha seçici olabilsin diye)
 pub const DNA_CONFIDENCE_MIN: f32 = 0.334;
 pub const DNA_CONFIDENCE_MAX: f32 = 0.600;
 

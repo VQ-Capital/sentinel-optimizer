@@ -23,39 +23,47 @@ pub fn calculate_fitness(
     sharpe: f64,
     max_dd: f64,
     trades: usize,
-    _win_rate: f64, // Alt çizgi (Kullanılmıyor, çünkü PnL odaklıyız)
+    win_rate: f64,
     profit_factor: f64,
 ) -> f64 {
+    let mut penalty = 0.0;
+    let mut bonus = 0.0;
+
     // 1. KORKAKLIK CEZASI
     if trades < MIN_REQUIRED_TRADES {
         let diff = MIN_REQUIRED_TRADES.saturating_sub(trades) as f64;
-        return -50_000.0 - (diff * 500.0);
+        penalty += diff * diff * 50.0;
     }
 
     // 2. İFLAS CEZASI
     if max_dd >= MAX_ALLOWED_DD {
-        return -100_000.0 - (max_dd * 1000.0);
+        let diff = max_dd - MAX_ALLOWED_DD;
+        penalty += diff * 1000.0;
     }
 
-    // 🔥 3. PnL ODAKLI YAKLAŞIM (Kral PnL'dir, diğer metrikler teferruattır)
-    if pnl < 0.0 {
-        // ZARARDAYSA: Sadece PnL'yi ve düşük PF'yi cezalandır. WinRate'i umursama.
-        let pnl_penalty = pnl * 10_000.0; // Negatif PnL eksi puan getirir (-0.5$ = -5000 puan)
-        let pf_penalty = if profit_factor < 1.0 {
-            (1.0 - profit_factor) * 5000.0
-        } else {
-            0.0
-        };
-        pnl_penalty - pf_penalty
-    } else {
-        // KÂRDAYSA: PnL'yi devasa ödüllendir!
-        let pnl_bonus = pnl * 50_000.0;
-        let sharpe_bonus = sharpe.max(0.0) * 5000.0;
-        let pf_bonus = profit_factor.max(1.0) * 5000.0;
-        let dd_penalty = max_dd * 2000.0;
-
-        pnl_bonus + sharpe_bonus + pf_bonus - dd_penalty
+    // 3. MATEMATİKSEL HEDEFLER CEZASI
+    if profit_factor < TARGET_PROFIT_FACTOR {
+        let diff = TARGET_PROFIT_FACTOR - profit_factor;
+        penalty += diff * diff * 5000.0;
     }
+    if win_rate < TARGET_WIN_RATE {
+        let diff = TARGET_WIN_RATE - win_rate;
+        penalty += diff * diff * 50.0;
+    }
+
+    // 4. AKTİVİTE VE BAŞARI ÖDÜLÜ
+    let activity_bonus = (trades as f64) * (win_rate / 100.0) * 10.0;
+    bonus += activity_bonus;
+
+    if profit_factor >= 1.0 {
+        bonus += profit_factor * 10_000.0;
+        bonus += sharpe * 5000.0;
+    }
+
+    // 5. PnL EN ÖNEMLİ METRİKTİR
+    let pnl_score = pnl * 1000.0;
+
+    pnl_score + bonus - penalty - (max_dd * 100.0)
 }
 
 pub fn create_random_genome() -> Genome {
@@ -129,20 +137,29 @@ pub fn evolve_population(
             }
 
             if rng.gen_bool(mut_rate as f64) {
-                let severity = if is_cataclysm { 3.0 } else { 1.0 };
+                let severity = if is_cataclysm { 2.0 } else { 1.0 };
+
+                // 🔥 CERRAHİ: MİKRO MUTASYON EKLENDİ. %80 ihtimalle çok küçük, %20 ihtimalle büyük değişim.
+                let is_micro = rng.gen_bool(0.8);
 
                 if i < 128 {
-                    gene += rng.gen_range(-0.5..0.5) * severity;
+                    let scale = if is_micro { 0.02 } else { 0.3 };
+                    gene += rng.gen_range(-scale..scale) * severity;
                 } else if (128..131).contains(&i) {
-                    gene += rng.gen_range(-0.2..0.2) * severity;
+                    let scale = if is_micro { 0.01 } else { 0.1 };
+                    gene += rng.gen_range(-scale..scale) * severity;
                 } else if i == 131 || i == 132 {
-                    gene += rng.gen_range(-0.005..0.005) * severity;
+                    let scale = if is_micro { 0.0005 } else { 0.005 };
+                    gene += rng.gen_range(-scale..scale) * severity;
                 } else if i == 133 {
-                    gene += rng.gen_range(-100.0..100.0) * severity;
+                    let scale = if is_micro { 10.0 } else { 100.0 };
+                    gene += rng.gen_range(-scale..scale) * severity;
                 } else if i == 134 {
-                    gene += rng.gen_range(-0.01..0.01) * severity;
+                    let scale = if is_micro { 0.001 } else { 0.01 };
+                    gene += rng.gen_range(-scale..scale) * severity;
                 } else if i == 135 {
-                    gene += rng.gen_range(-0.02..0.02) * severity;
+                    let scale = if is_micro { 0.002 } else { 0.02 };
+                    gene += rng.gen_range(-scale..scale) * severity;
                 }
             }
 
