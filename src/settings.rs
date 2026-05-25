@@ -11,14 +11,13 @@ pub const EXTINCTION_DEATH_RATE: f32 = 0.75;
 
 pub const EARLY_STOP_LIMIT: u32 = 30;
 
-// 🔥 QUANT KALİBRASYONU: İşlem zorunluluğu 500'den 150'ye düşürüldü. (Günde ortalama 5 kaliteli işlem)
 pub const MIN_REQUIRED_TRADES: usize = 150;
 pub const MAX_ALLOWED_DD: f64 = 30.0;
 
-pub const TARGET_WIN_RATE: f64 = 40.0;
-pub const TARGET_PROFIT_FACTOR: f64 = 1.1;
+// 🔥 HEDEFLER DÜŞÜRÜLDÜ (Baskı azaltıldı)
+pub const TARGET_WIN_RATE: f64 = 30.0;
+pub const TARGET_PROFIT_FACTOR: f64 = 1.05;
 
-// 🔥 QUANT KALİBRASYONU: Hedef Kâr (TP) tavanı %3'ten %5'e çıkarıldı. AI daha büyük trendleri kovalayabilecek.
 pub const DNA_TP_MIN: f32 = 0.005;
 pub const DNA_TP_MAX: f32 = 0.050;
 pub const DNA_SL_MIN: f32 = 0.002;
@@ -26,8 +25,9 @@ pub const DNA_SL_MAX: f32 = 0.025;
 pub const DNA_COOLDOWN_MIN: f32 = 100.0;
 pub const DNA_COOLDOWN_MAX: f32 = 2000.0;
 
+// 🔥 CONFIDENCE MARJI GENİŞLETİLDİ (Daha seçici olabilsin diye)
 pub const DNA_CONFIDENCE_MIN: f32 = 0.334;
-pub const DNA_CONFIDENCE_MAX: f32 = 0.400;
+pub const DNA_CONFIDENCE_MAX: f32 = 0.600;
 
 pub fn print_experiment_manifest(symbol: &str, dataset: &str, gen: usize, pop: usize) {
     println!(
