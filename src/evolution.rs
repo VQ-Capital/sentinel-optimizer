@@ -18,21 +18,22 @@ pub struct Genome {
     pub profit_factor: f64,
 }
 
+// ========== DOSYA: sentinel-optimizer/src/evolution.rs (SADECE calculate_fitness FONKSİYONU) ==========
+
 pub fn calculate_fitness(
     pnl: f64,
     sharpe: f64,
     max_dd: f64,
     trades: usize,
-    win_rate: f64,
+    _win_rate: f64,
     profit_factor: f64,
 ) -> f64 {
     let mut penalty = 0.0;
-    let mut bonus = 0.0;
 
     // 1. KORKAKLIK CEZASI
     if trades < MIN_REQUIRED_TRADES {
         let diff = MIN_REQUIRED_TRADES.saturating_sub(trades) as f64;
-        penalty += diff * diff * 50.0;
+        penalty += diff * diff * 50.0; 
     }
 
     // 2. İFLAS CEZASI
@@ -44,26 +45,22 @@ pub fn calculate_fitness(
     // 3. MATEMATİKSEL HEDEFLER CEZASI
     if profit_factor < TARGET_PROFIT_FACTOR {
         let diff = TARGET_PROFIT_FACTOR - profit_factor;
-        penalty += diff * diff * 5000.0;
-    }
-    if win_rate < TARGET_WIN_RATE {
-        let diff = TARGET_WIN_RATE - win_rate;
-        penalty += diff * diff * 50.0;
+        penalty += diff * diff * 5000.0; 
     }
 
-    // 4. AKTİVİTE VE BAŞARI ÖDÜLÜ
-    let activity_bonus = (trades as f64) * (win_rate / 100.0) * 10.0;
-    bonus += activity_bonus;
-
-    if profit_factor >= 1.0 {
-        bonus += profit_factor * 10_000.0;
-        bonus += sharpe * 5000.0;
+    // 🚀 4. MUTLAK DİKTATÖRLÜK: PnL KRALDIR
+    if pnl <= 0.0 {
+        // ZARAR DURUMU: Acımasızca cezalandır. Hiçbir PF veya WinRate bonusu yok!
+        // PnL ne kadar negatifse o kadar devasa eksi puan (-1$ = -100,000 puan)
+        (pnl * 100_000.0) - penalty - (max_dd * 100.0)
+    } else {
+        // KÂR DURUMU: Kâra geçtiği an PnL'yi Profit Factor ile katlayarak ödüllendir
+        let pnl_score = pnl * 100_000.0;
+        let pf_multiplier = profit_factor.max(1.0);
+        let sharpe_bonus = sharpe.max(0.0) * 5000.0;
+        
+        (pnl_score * pf_multiplier) + sharpe_bonus - penalty - (max_dd * 100.0)
     }
-
-    // 5. PnL EN ÖNEMLİ METRİKTİR
-    let pnl_score = pnl * 1000.0;
-
-    pnl_score + bonus - penalty - (max_dd * 100.0)
 }
 
 pub fn create_random_genome() -> Genome {
