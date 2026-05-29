@@ -18,22 +18,23 @@ pub struct Genome {
     pub profit_factor: f64,
 }
 
-// ========== DOSYA: sentinel-optimizer/src/evolution.rs (SADECE calculate_fitness FONKSİYONU) ==========
+// ========== DOSYA: sentinel-optimizer/src/evolution.rs İÇİNDEKİ calculate_fitness KISMI ==========
 
 pub fn calculate_fitness(
     pnl: f64,
     sharpe: f64,
     max_dd: f64,
     trades: usize,
-    _win_rate: f64,
+    win_rate: f64,
     profit_factor: f64,
 ) -> f64 {
     let mut penalty = 0.0;
+    let mut bonus = 0.0;
 
     // 1. KORKAKLIK CEZASI
     if trades < MIN_REQUIRED_TRADES {
         let diff = MIN_REQUIRED_TRADES.saturating_sub(trades) as f64;
-        penalty += diff * diff * 50.0; 
+        penalty += diff * diff * 50.0;
     }
 
     // 2. İFLAS CEZASI
@@ -42,25 +43,30 @@ pub fn calculate_fitness(
         penalty += diff * 1000.0;
     }
 
-    // 3. MATEMATİKSEL HEDEFLER CEZASI
+    // 3. MATEMATİKSEL HEDEFLER CEZASI (Hedef altındaysa yavaş yavaş artan ceza)
     if profit_factor < TARGET_PROFIT_FACTOR {
         let diff = TARGET_PROFIT_FACTOR - profit_factor;
-        penalty += diff * diff * 5000.0; 
+        penalty += diff * diff * 1000.0;
+    }
+    if win_rate < TARGET_WIN_RATE {
+        let diff = TARGET_WIN_RATE - win_rate;
+        penalty += diff * 50.0; // Karesel değil lineer ceza (Hafiflettik)
     }
 
-    // 🚀 4. MUTLAK DİKTATÖRLÜK: PnL KRALDIR
-    if pnl <= 0.0 {
-        // ZARAR DURUMU: Acımasızca cezalandır. Hiçbir PF veya WinRate bonusu yok!
-        // PnL ne kadar negatifse o kadar devasa eksi puan (-1$ = -100,000 puan)
-        (pnl * 100_000.0) - penalty - (max_dd * 100.0)
-    } else {
-        // KÂR DURUMU: Kâra geçtiği an PnL'yi Profit Factor ile katlayarak ödüllendir
-        let pnl_score = pnl * 100_000.0;
-        let pf_multiplier = profit_factor.max(1.0);
-        let sharpe_bonus = sharpe.max(0.0) * 5000.0;
-        
-        (pnl_score * pf_multiplier) + sharpe_bonus - penalty - (max_dd * 100.0)
+    // 🔥 4. DESEN TANIMA ÖDÜLÜ (PnL negatif olsa bile yönü doğru bilirse ödüllendir)
+    // Modelin sadece "işlem yapmamayı" seçmesini engeller.
+    bonus += win_rate * 10.0;
+    bonus += profit_factor * 1000.0;
+    bonus += (trades as f64) * 0.5; // Çok işlem yapmayı ufaktan teşvik et
+
+    if sharpe > 0.0 {
+        bonus += sharpe * 5000.0;
     }
+
+    // 5. ANA EKSEN: PnL
+    let pnl_score = pnl * 10_000.0; // 1$ kâr = +10.000 puan, 1$ zarar = -10.000 puan
+
+    pnl_score + bonus - penalty - (max_dd * 100.0)
 }
 
 pub fn create_random_genome() -> Genome {
