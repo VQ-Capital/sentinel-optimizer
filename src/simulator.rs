@@ -50,7 +50,7 @@ struct Bucket {
 }
 
 pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> SimulationResult {
-    // 🧬 DNA ÇÖZÜMLEME (Total 136)
+    // 🧬 DNA ÇÖZÜMLEME (Total 138)
     let w1 = dna[0..96].to_vec();
     let b1 = dna[96..104].to_vec();
     let w2 = dna[104..128].to_vec();
@@ -61,20 +61,20 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
         Err(_) => return dead_result(),
     };
 
-    let ai_confidence_threshold =
-        (dna[135] as f64).clamp(DNA_CONFIDENCE_MIN as f64, DNA_CONFIDENCE_MAX as f64);
+    let ai_confidence_threshold = dna[135] as f64;
 
+    // 🔥 AI KENDİ RİSKİNİ VE ZAMANINI BELİRLİYOR
     let risk_config = RiskConfig {
         initial_balance: INITIAL_BALANCE,
         max_drawdown_usd: INITIAL_BALANCE * (MAX_ALLOWED_DD / 100.0),
         defensive_drawdown_usd: INITIAL_BALANCE * ((MAX_ALLOWED_DD * 0.8) / 100.0),
         cooldown_ms: dna[133] as i64,
         min_hold_time_ms: 100,
-        max_hold_time_ms: 3_600_000,
-        base_risk_pct: (dna[134] as f64).clamp(0.01, 0.05),
-        base_leverage: 1.0,
-        take_profit_pct: (dna[131] as f64).clamp(DNA_TP_MIN as f64, DNA_TP_MAX as f64),
-        stop_loss_pct: (dna[132] as f64).clamp(DNA_SL_MIN as f64, DNA_SL_MAX as f64),
+        max_hold_time_ms: dna[137] as i64, // AI'ın kararı
+        base_risk_pct: dna[134] as f64,
+        base_leverage: dna[136] as f64, // AI'ın kararı
+        take_profit_pct: dna[131] as f64,
+        stop_loss_pct: dna[132] as f64,
     };
 
     let mut risk_engine = RiskEngine::new(risk_config.clone());
@@ -201,7 +201,6 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
                             recommended_leverage: 1.0,
                             timestamp: tick.timestamp,
                         };
-
                         if let Ok(qty) = risk_engine.evaluate_signal(
                             &signal,
                             tick.price,
@@ -220,7 +219,6 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
                             } else {
                                 tick.price * (1.0 - BASE_SLIPPAGE_PCT)
                             };
-
                             risk_engine.process_execution(
                                 symbol,
                                 side,
@@ -269,7 +267,6 @@ pub fn run_simulation(dna: &[f32], ticks: &[HistoricalTick], symbol: &str) -> Si
             } else {
                 gross_loss += net_pnl.abs();
             }
-
             if balance > peak_equity {
                 peak_equity = balance;
             }
