@@ -34,7 +34,7 @@ pub fn calculate_fitness(
     // 1. KORKAKLIK CEZASI
     if trades < MIN_REQUIRED_TRADES {
         let diff = MIN_REQUIRED_TRADES.saturating_sub(trades) as f64;
-        penalty += diff * diff * 50.0; 
+        penalty += diff * diff * 50.0;
     }
 
     // 2. İFLAS CEZASI
@@ -46,11 +46,11 @@ pub fn calculate_fitness(
     // 3. MATEMATİKSEL HEDEFLER CEZASI
     if profit_factor < TARGET_PROFIT_FACTOR {
         let diff = TARGET_PROFIT_FACTOR - profit_factor;
-        penalty += diff * diff * 5000.0; 
+        penalty += diff * diff * 5000.0;
     }
     if win_rate < TARGET_WIN_RATE {
         let diff = TARGET_WIN_RATE - win_rate;
-        penalty += diff * 50.0; 
+        penalty += diff * 50.0;
     }
 
     // 4. AKTİVİTE VE BAŞARI ÖDÜLÜ
@@ -63,9 +63,9 @@ pub fn calculate_fitness(
     }
 
     // 5. ANA EKSEN: PnL
-    let pnl_score = pnl * 100_000.0; 
+    let pnl_score = pnl * 100_000.0;
 
-    // 🔥 CERRAHİ: Artık PnL negatif olsa bile bonuslar sıfırlanmıyor! 
+    // 🔥 CERRAHİ: Artık PnL negatif olsa bile bonuslar sıfırlanmıyor!
     // Model "İyi trade" etmenin ödülünü alarak PnL'yi yavaşça artıya taşıyacak.
     pnl_score + bonus - penalty - (max_dd * 100.0)
 }
