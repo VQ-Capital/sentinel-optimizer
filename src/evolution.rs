@@ -18,6 +18,8 @@ pub struct Genome {
     pub profit_factor: f64,
 }
 
+// ========== DOSYA: sentinel-optimizer/src/evolution.rs İÇİNDEKİ calculate_fitness FONKSİYONU ==========
+
 pub fn calculate_fitness(
     pnl: f64,
     sharpe: f64,
@@ -27,32 +29,45 @@ pub fn calculate_fitness(
     profit_factor: f64,
 ) -> f64 {
     let mut penalty = 0.0;
+    let mut bonus = 0.0;
 
+    // 1. KORKAKLIK CEZASI
     if trades < MIN_REQUIRED_TRADES {
         let diff = MIN_REQUIRED_TRADES.saturating_sub(trades) as f64;
-        penalty += diff * diff * 50.0;
+        penalty += diff * diff * 50.0; 
     }
 
+    // 2. İFLAS CEZASI
     if max_dd >= MAX_ALLOWED_DD {
         let diff = max_dd - MAX_ALLOWED_DD;
         penalty += diff * 1000.0;
     }
 
+    // 3. MATEMATİKSEL HEDEFLER CEZASI
     if profit_factor < TARGET_PROFIT_FACTOR {
         let diff = TARGET_PROFIT_FACTOR - profit_factor;
-        penalty += diff * diff * 5000.0;
+        penalty += diff * diff * 5000.0; 
+    }
+    if win_rate < TARGET_WIN_RATE {
+        let diff = TARGET_WIN_RATE - win_rate;
+        penalty += diff * 50.0; 
     }
 
-    if pnl <= 0.0 {
-        return (pnl * 100_000.0) - penalty - (max_dd * 100.0);
+    // 4. AKTİVİTE VE BAŞARI ÖDÜLÜ
+    let activity_bonus = (trades as f64) * (win_rate / 100.0) * 10.0;
+    bonus += activity_bonus;
+
+    if profit_factor >= 1.0 {
+        bonus += profit_factor * 10_000.0;
+        bonus += sharpe.max(0.0) * 5000.0;
     }
 
-    let pnl_score = pnl * 100_000.0;
-    let pf_multiplier = profit_factor.max(1.0);
-    let sharpe_bonus = sharpe.max(0.0) * 5000.0;
-    let wr_bonus = win_rate * 100.0;
+    // 5. ANA EKSEN: PnL
+    let pnl_score = pnl * 100_000.0; 
 
-    (pnl_score * pf_multiplier) + sharpe_bonus + wr_bonus - penalty - (max_dd * 100.0)
+    // 🔥 CERRAHİ: Artık PnL negatif olsa bile bonuslar sıfırlanmıyor! 
+    // Model "İyi trade" etmenin ödülünü alarak PnL'yi yavaşça artıya taşıyacak.
+    pnl_score + bonus - penalty - (max_dd * 100.0)
 }
 
 pub fn create_random_genome() -> Genome {
