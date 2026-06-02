@@ -18,8 +18,6 @@ pub struct Genome {
     pub profit_factor: f64,
 }
 
-// ========== DOSYA: sentinel-optimizer/src/evolution.rs İÇİNDEKİ calculate_fitness FONKSİYONU ==========
-
 pub fn calculate_fitness(
     pnl: f64,
     sharpe: f64,
@@ -31,35 +29,50 @@ pub fn calculate_fitness(
     // 1. KORKAKLIK CEZASI
     if trades < MIN_REQUIRED_TRADES {
         let diff = MIN_REQUIRED_TRADES.saturating_sub(trades) as f64;
-        // Uçurum yerine ağır bir karesel ceza (Hâlâ hayatta kalma şansı var ama çok düşük)
-        return -100_000.0 - (diff * diff * 50.0) + (pnl * 10.0); 
+        return -10_000_000.0 - (diff * diff * 10_000.0) + (pnl * 10.0);
     }
 
     // 2. İFLAS CEZASI
     if max_dd >= MAX_ALLOWED_DD {
-        return -500_000.0 - (max_dd * 10_000.0);
+        return -5_000_000.0 - (max_dd * 10_000.0);
     }
 
-    let pnl_score = pnl * 100_000.0;
+    let mut penalty = 0.0;
 
-    // 🚀 3. BÜYÜK İKRAMİYE (THE JACKPOT) VE KARANLIK BÖLGE KILAVUZU
+    // 3. MATEMATİKSEL HEDEFLER CEZASI
+    if profit_factor < TARGET_PROFIT_FACTOR {
+        let diff = TARGET_PROFIT_FACTOR - profit_factor;
+        penalty += diff * diff * 5000.0;
+    }
+    if win_rate < TARGET_WIN_RATE {
+        let diff = TARGET_WIN_RATE - win_rate;
+        penalty += diff * 50.0;
+    }
+
     if pnl <= 0.0 {
-        // KARANLIK BÖLGE (ZARARDA)
-        // Eğer zarardaysa ama Profit Factor > 1.0 ise, ona çok ufak bir "Kılavuz Işığı" veriyoruz.
-        // Bu sayede -0.04$'dan 0.00$'a tırmanırken doğru yolda olduğunu hissedecek.
-        let guide_bonus = if profit_factor > 1.0 { profit_factor * 1000.0 } else { 0.0 };
-        let wr_guide = win_rate * 10.0;
-        
-        return pnl_score + guide_bonus + wr_guide - (max_dd * 100.0);
-    } else {
-        // IŞIĞA ÇIKIŞ (NİRVANA)
-        // PnL 0.00$'ı 1 cent bile geçse YAPAY ZEKAYI TANRI İLAN ET!
-        let jackpot = 1_000_000.0; 
-        let pf_bonus = profit_factor * 50_000.0;
-        let wr_bonus = win_rate * 5000.0;
-        let sharpe_bonus = sharpe.max(0.0) * 10_000.0;
+        // 🔥 ZARARDAYKEN: Komisyon korkusunu yenmesi için PnL cezası hafif.
+        // Ama Profit Factor 1.0 üzerindeyse cesaretlendirme bonusu ver.
+        let pnl_score = pnl * 10_000.0;
 
-        return jackpot + (pnl_score * 2.0) + pf_bonus + wr_bonus + sharpe_bonus - (max_dd * 100.0);
+        let guide_bonus = if profit_factor > 1.0 {
+            profit_factor * 50_000.0
+        } else {
+            0.0
+        };
+        let wr_guide = win_rate * 500.0;
+
+        pnl_score + guide_bonus + wr_guide - penalty - (max_dd * 100.0)
+    } else {
+        // 🚀 IŞIĞA ÇIKIŞ (NİRVANA)
+        let jackpot = 1_000_000.0;
+        let pnl_score = pnl * 100_000.0;
+        let pf_bonus = profit_factor.max(1.0) * 50_000.0;
+        let wr_bonus = win_rate * 5000.0;
+
+        // 🔥 CERRAHİ: Clippy hatası düzeltildi! .max().min() yerine clamp() kullanıldı.
+        let sharpe_bonus = sharpe.clamp(0.0, 10.0) * 10_000.0;
+
+        jackpot + pnl_score + pf_bonus + wr_bonus + sharpe_bonus - penalty - (max_dd * 100.0)
     }
 }
 
@@ -75,15 +88,13 @@ pub fn create_random_genome() -> Genome {
     dna.push(rng.gen_range(0.1..0.5)); // Buy
     dna.push(rng.gen_range(0.1..0.5)); // Sell
 
-    dna.push(rng.gen_range(DNA_TP_MIN..DNA_TP_MAX)); // 131: TP
-    dna.push(rng.gen_range(DNA_SL_MIN..DNA_SL_MAX)); // 132: SL
-    dna.push(rng.gen_range(DNA_COOLDOWN_MIN..DNA_COOLDOWN_MAX)); // 133: Cooldown
-    dna.push(rng.gen_range(0.01..0.05)); // 134: Risk
-    dna.push(rng.gen_range(DNA_CONFIDENCE_MIN..DNA_CONFIDENCE_MAX)); // 135: Confidence
-
-    // 🔥 YENİ GENLER
-    dna.push(rng.gen_range(DNA_LEVERAGE_MIN..DNA_LEVERAGE_MAX)); // 136: Leverage
-    dna.push(rng.gen_range(DNA_HOLD_TIME_MIN..DNA_HOLD_TIME_MAX)); // 137: Max Hold Time
+    dna.push(rng.gen_range(DNA_TP_MIN..DNA_TP_MAX));
+    dna.push(rng.gen_range(DNA_SL_MIN..DNA_SL_MAX));
+    dna.push(rng.gen_range(DNA_COOLDOWN_MIN..DNA_COOLDOWN_MAX));
+    dna.push(rng.gen_range(0.01..0.05));
+    dna.push(rng.gen_range(DNA_CONFIDENCE_MIN..DNA_CONFIDENCE_MAX));
+    dna.push(rng.gen_range(DNA_LEVERAGE_MIN..DNA_LEVERAGE_MAX));
+    dna.push(rng.gen_range(DNA_HOLD_TIME_MIN..DNA_HOLD_TIME_MAX));
 
     Genome {
         weights: dna,
@@ -112,6 +123,7 @@ pub fn evolve_population(
     } else {
         (total_size / 10).max(2)
     };
+
     new_pop.extend_from_slice(&current_pop[0..elite_count]);
 
     let random_injection = if is_cataclysm {
@@ -159,17 +171,14 @@ pub fn evolve_population(
                     let scale = if is_micro { 0.002 } else { 0.02 };
                     gene += rng.gen_range(-scale..scale) * severity;
                 } else if i == 136 {
-                    // Leverage
                     let scale = if is_micro { 0.1 } else { 1.0 };
                     gene += rng.gen_range(-scale..scale) * severity;
                 } else if i == 137 {
-                    // Hold Time
                     let scale = if is_micro { 300_000.0 } else { 3_600_000.0 };
                     gene += rng.gen_range(-scale..scale) * severity;
                 }
             }
 
-            // Clamping
             if i == 131 {
                 gene = gene.clamp(DNA_TP_MIN, DNA_TP_MAX);
             } else if i == 132 {
