@@ -28,52 +28,39 @@ pub fn calculate_fitness(
     win_rate: f64,
     profit_factor: f64,
 ) -> f64 {
-    // 🚀 1. MUTLAK DİKTATÖRLÜK 1: KORKAKLIK CEZASI (ABSOLUTE WALL)
+    // 1. KORKAKLIK CEZASI
     if trades < MIN_REQUIRED_TRADES {
         let diff = MIN_REQUIRED_TRADES.saturating_sub(trades) as f64;
-        // 150 işlem yapmayana ASLA Profit Factor veya Sharpe bonusu verilmez!
-        // İşlem sayısı eksikliği başına devasa eksi puan verilir ve direkt çıkılır.
-        return -10_000_000.0 - (diff * diff * 10_000.0) + (pnl * 10.0); 
+        // Uçurum yerine ağır bir karesel ceza (Hâlâ hayatta kalma şansı var ama çok düşük)
+        return -100_000.0 - (diff * diff * 50.0) + (pnl * 10.0); 
     }
 
     // 2. İFLAS CEZASI
     if max_dd >= MAX_ALLOWED_DD {
-        return -5_000_000.0 - (max_dd * 10_000.0);
+        return -500_000.0 - (max_dd * 10_000.0);
     }
 
-    let mut penalty = 0.0;
-    let mut bonus = 0.0;
+    let pnl_score = pnl * 100_000.0;
 
-    // 3. MATEMATİKSEL HEDEFLER CEZASI
-    if profit_factor < TARGET_PROFIT_FACTOR {
-        let diff = TARGET_PROFIT_FACTOR - profit_factor;
-        penalty += diff * diff * 5000.0; 
-    }
-    if win_rate < TARGET_WIN_RATE {
-        let diff = TARGET_WIN_RATE - win_rate;
-        penalty += diff * 50.0; 
-    }
-
-    // 🚀 4. MUTLAK DİKTATÖRLÜK 2: ZARAR EDENE BONUS YOK
+    // 🚀 3. BÜYÜK İKRAMİYE (THE JACKPOT) VE KARANLIK BÖLGE KILAVUZU
     if pnl <= 0.0 {
-        return (pnl * 100_000.0) - penalty - (max_dd * 100.0);
+        // KARANLIK BÖLGE (ZARARDA)
+        // Eğer zarardaysa ama Profit Factor > 1.0 ise, ona çok ufak bir "Kılavuz Işığı" veriyoruz.
+        // Bu sayede -0.04$'dan 0.00$'a tırmanırken doğru yolda olduğunu hissedecek.
+        let guide_bonus = if profit_factor > 1.0 { profit_factor * 1000.0 } else { 0.0 };
+        let wr_guide = win_rate * 10.0;
+        
+        return pnl_score + guide_bonus + wr_guide - (max_dd * 100.0);
+    } else {
+        // IŞIĞA ÇIKIŞ (NİRVANA)
+        // PnL 0.00$'ı 1 cent bile geçse YAPAY ZEKAYI TANRI İLAN ET!
+        let jackpot = 1_000_000.0; 
+        let pf_bonus = profit_factor * 50_000.0;
+        let wr_bonus = win_rate * 5000.0;
+        let sharpe_bonus = sharpe.max(0.0) * 10_000.0;
+
+        return jackpot + (pnl_score * 2.0) + pf_bonus + wr_bonus + sharpe_bonus - (max_dd * 100.0);
     }
-
-    // 5. NİRVANA (Hem 150 işlemi geçti, hem de kârda)
-    let activity_bonus = (trades as f64) * (win_rate / 100.0) * 10.0;
-    bonus += activity_bonus;
-
-    if profit_factor >= 1.0 {
-        bonus += profit_factor * 10_000.0;
-        // 🔥 CERRAHİ: Sharpe bonusuna üst sınır (Cap) koyduk. Skoru patlatıp hacklemesini önler.
-        bonus += sharpe.max(0.0).min(10.0) * 5000.0; 
-    }
-
-    let pnl_score = pnl * 100_000.0; 
-    // 🔥 CERRAHİ: Çarpan sınırlandı.
-    let pf_multiplier = profit_factor.max(1.0).min(5.0); 
-
-    (pnl_score * pf_multiplier) + bonus - penalty - (max_dd * 100.0)
 }
 
 pub fn create_random_genome() -> Genome {
